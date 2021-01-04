@@ -1,0 +1,25 @@
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #2fe7cf;">
+    <a class="navbar-brand" href="/">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="nav-link" id="classifier-navlink" href="/Classifier">Clasificador Noticias<span class="sr-only"></span></a>
+        <a class="nav-link" id="about-navlink" href="/About">About<span class="sr-only"></span></a>
+      </div>
+    </div>
+</nav>
+
+<script>
+  const nav_link  = document.getElementById("classifier-navlink");
+  const nav_about = document.getElementById("about-navlink"     );
+
+  if (window.location.href.includes("/Classifier")) {
+    nav_link.classList.add("active");
+    nav_about.classList.remove("active");
+  } else if (window.location.href.includes("/About")) {
+    nav_link.classList.remove("active");
+    nav_about.classList.add("active");
+  }
+</script>

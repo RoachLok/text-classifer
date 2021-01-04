@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="jumbotron text-center" style="height: 7%;">
+    <h1 style="margin-top: -0.9em;">Clasificador de Texto</h1> 
+</div>
+
+<div class="btn-group">
+    <button class="btn btn-secondary btn-lg" onclick="trainSelect()">
+        Selecciona Textos Clasificados
+    </button>
+    <button type="button" class="btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+    <div class="dropdown-menu" id="train-files">
+        
+    </div>
+</div>
+
+
+<script>
+    function trainSelect(){
+        // Create a request variable and assign a new XMLHttpRequest object to it.
+        const request = new XMLHttpRequest();
+
+        // Open a new connection, using the GET request on the URL endpoint
+        request.open('GET', './get_train_files', true);
+
+        request.onload = function () {  // Process response somehow // A json can also be retrieved. 
+            const files_drop_buttons = document.createElement("train-file");
+            files_drop_buttons.innerHTML = this.response;            
+            const train_files = document.getElementById("train-files");
+            train_files.replaceWith(files_drop_buttons);
+        }
+
+        // Send request
+        request.send();
+    }
+</script>
+{% endblock %}
