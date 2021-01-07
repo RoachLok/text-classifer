@@ -34,7 +34,7 @@ class ModeloDesp:
     def __init__(self):
         self.dataset = pd.DataFrame(columns = ["noticia", "categoria"])
         self.test_set = pd.DataFrame(columns = ["noticia"])
-        self.count_vectorizer = CountVectorizer(min_df = 0.06)
+        self.count_vectorizer = None
         self.selectedModel = None
         self.test = None
     
@@ -43,7 +43,7 @@ class ModeloDesp:
             path = os.path.join(dirTrain, f)
             with open(path, 'r', encoding='utf-8', errors = 'ignore') as file:
                 self.dataset = self.dataset.append({'noticia': file.read(), 'categoria':  os.path.basename(dirTrain[:-1])}, ignore_index=True)
-        
+    
     def cargarTextosTest(self, dirTest):
         for f in os.listdir(dirTest):
             path = os.path.join(dirTest, f)
@@ -52,7 +52,6 @@ class ModeloDesp:
               
     
     def preprocesarTextos(self, dataset):
-        
         # Limpieza de textos, en los que se incluye tokenizacion y stemming.
         corpus = []
         for i in range(len(dataset)):
@@ -61,11 +60,11 @@ class ModeloDesp:
             text = text.split() # Tercera limpieza = dividir los textos en sus diferentes palabras para que podamos aplicar lematizacion/stemming a cada palabra
             # Cuarta limpieza
             #ps = PorterStemmer()
-            sst = SnowballStemmer('spanish')
             all_stopwords = stopwords.words('spanish')
+            sst = SnowballStemmer('spanish')        
             text = [sst.stem(word) for word in text if not word in set(all_stopwords)] # For en una línea, aplicamos stemming a cada palabra con la condición de no tratar y deshacerse de las stopwords.
             text = ' '.join(text) # Volvemos a unir las palabras de los textos separados por espacio para obtener el formato original de los textos
-            corpus.append(text)
+            corpus.append(text)  
         return corpus
 
     def model_name_selection(self, modelName):
@@ -84,9 +83,10 @@ class ModeloDesp:
         elif modelName == "RF":
             return RandomForestClassifier()
         elif modelName == "ANN":
-            return MLPClassifier(hidden_layer_sizes = (100, 50, 100, 50),batch_size = 16, learning_rate = "adaptive", max_iter=100)
-        
-    def model_training(self, modelName):
+            return MLPClassifier(batch_size = 16, learning_rate = "adaptive")
+    
+    def model_training(self, modelName, min_dif):
+        self.count_vectorizer = CountVectorizer(min_df = min_dif)
         X = self.count_vectorizer.fit_transform(self.preprocesarTextos(self.dataset)).toarray()
         y = self.dataset['categoria'].values # Dependent variable
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
@@ -95,7 +95,6 @@ class ModeloDesp:
             models = []
             models.append(('LR', LogisticRegression()))
             models.append(('LDA', LinearDiscriminantAnalysis()))
-            models.append(('CART', DecisionTreeClassifier()))
             models.append(('NB', GaussianNB()))
             models.append(('SVM', SVC()))
             # models.append(('GBM', GradientBoostingClassifier()))
@@ -140,7 +139,10 @@ class ModeloDesp:
     def model_testing(self):
         self.test = self.count_vectorizer.transform(self.preprocesarTextos(self.test_set)).toarray()
         y_pred = self.selectedModel.predict(self.test)
+        y_pred_proba = self.selectedModel.predict_proba(self.test)
+        y_pred_proba = np.matrix.round(y_pred_proba, 3)
         print(y_pred)
+        print(y_pred_proba)
     
     def save_model(self, filename):
         # save the model to disk
@@ -155,12 +157,12 @@ class ModeloDesp:
         self.count_vectorizer, self.selectedModel = bow_model_save
     
         
-     
+
 prueba = ModeloDesp()
 '''
 prueba.cargarTextosTraining("data/Noticias/Despoblacion/")
 prueba.cargarTextosTraining("data/Noticias/No Despoblacion/")
-prueba.model_training("AUTO")
+prueba.model_training(modelName = "AUTO", min_dif = 0.06)
 prueba.save_model("finalized_model.sav")
 '''
 
