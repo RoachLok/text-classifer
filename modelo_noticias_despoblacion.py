@@ -28,6 +28,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.model_selection import GridSearchCV
+
+from tkinter import filedialog
+from tkinter import *
 
 
 class ModeloDesp:
@@ -36,14 +40,17 @@ class ModeloDesp:
         self.test_set = pd.DataFrame(columns = ["noticia"])
         self.count_vectorizer = None
         self.selectedModel = None
+        self.X = None
+        self.y = None
         self.test = None
     
     def cargarTextosTraining(self, dirTrain):
+        files_name = []
         for f in os.listdir(dirTrain):
             path = os.path.join(dirTrain, f)
             with open(path, 'r', encoding='utf-8', errors = 'ignore') as file:
                 self.dataset = self.dataset.append({'noticia': file.read(), 'categoria':  os.path.basename(dirTrain[:-1])}, ignore_index=True)
-    
+        
     def cargarTextosTest(self, dirTest):
         for f in os.listdir(dirTest):
             path = os.path.join(dirTest, f)
@@ -61,7 +68,7 @@ class ModeloDesp:
             # Cuarta limpieza
             #ps = PorterStemmer()
             all_stopwords = stopwords.words('spanish')
-            sst = SnowballStemmer('spanish')        
+            sst = SnowballStemmer('spanish')
             text = [sst.stem(word) for word in text if not word in set(all_stopwords)] # For en una línea, aplicamos stemming a cada palabra con la condición de no tratar y deshacerse de las stopwords.
             text = ' '.join(text) # Volvemos a unir las palabras de los textos separados por espacio para obtener el formato original de los textos
             corpus.append(text)  
@@ -74,22 +81,20 @@ class ModeloDesp:
             return LinearDiscriminantAnalysis()
         elif modelName == "KNN":
             return KNeighborsClassifier()
-        elif modelName == "CART":
-            return DecisionTreeClassifier()
         elif modelName == "NB":
             return GaussianNB()
-        elif modelName == "SVM":
+        elif modelName == "SVC":
             return SVC()
         elif modelName == "RF":
             return RandomForestClassifier()
         elif modelName == "ANN":
-            return MLPClassifier(batch_size = 16, learning_rate = "adaptive")
+            return MLPClassifier()
     
-    def model_training(self, modelName, min_dif):
+    def model_training(self, modelName, min_dif = None):
         self.count_vectorizer = CountVectorizer(min_df = min_dif)
-        X = self.count_vectorizer.fit_transform(self.preprocesarTextos(self.dataset)).toarray()
-        y = self.dataset['categoria'].values # Dependent variable
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
+        self.X = self.count_vectorizer.fit_transform(self.preprocesarTextos(self.dataset)).toarray()
+        self.y = self.dataset['categoria'].values # Dependent variable
+        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size = 0.2, random_state = 42)
         if modelName == "AUTO":
             print("Auto model selection")
             models = []
@@ -99,7 +104,7 @@ class ModeloDesp:
             models.append(('SVM', SVC()))
             # models.append(('GBM', GradientBoostingClassifier()))
             models.append(('RF', RandomForestClassifier()))
-            models.append(('ANN', MLPClassifier(learning_rate = "adaptive")))
+            models.append(('ANN', MLPClassifier()))
             #models.append(('ANN', MLPClassifier(hidden_layer_sizes = (300, 150), batch_size = 16, learning_rate = "adaptive", max_iter=100)))
             
             results = []
@@ -136,6 +141,42 @@ class ModeloDesp:
         print(confusion_matrix(y_test, y_pred))
         print(classification_report(y_test, y_pred))
 
+    def model_self_tuning(self):
+        print("Parameter tuning")
+        parameters = []
+        if type(self.selectedModel).__name__ == 'LogisticRegression':
+            parameters = [{'C':np.arange(0.1, 1.1, 0.1).tolist()}, {'penalty': ['elasticnet'] ,'C':np.arange(0.1, 1.1, 0.1).tolist()}]
+        elif type(self.selectedModel).__name__ == 'LinearDiscriminantAnalysis':
+            parameters =  [{'solver': ['svd', 'lsqr', 'eigen'], 'shrinkage':['None', 'auto']}]
+        elif type(self.selectedModel).__name__ == 'KNeighborsClassifier':
+            parameters = [{'n_neighbors' : np.arange(1, 31, 1), 'weights':['uniform', 'distance']}]
+        elif type(self.selectedModel).__name__ == 'GaussianNB':
+            #parameters = 
+            pass
+        elif type(self.selectedModel).__name__ == 'SVC':
+            parameters = [{'C':np.arange(0.1, 1.1, 0.1).tolist(), 'kernel':['linear', 'poly', 'rbf', 'sigmoid'], 'gamma':['scale', 'auto']}]
+        elif type(self.selectedModel).__name__ == 'RandomForestClassifier':
+            parameters = [{'n_estimators': np.arange(100, 320, 20), 'criterion': ['gini', 'entropy']}]
+        elif type(self.selectedModel).__name__ == 'MLPClassifier':
+            parameters = [{'hidden_layer_sizes':[(50, 50), (100, 100, 100), (400, 100, 50, 10)], 'batch_size':[16, 32, 64], 'learning_rate':['adaptive'], 'max_iter':[50,100,300]}]
+        
+        print(parameters)
+        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size = 0.2, random_state = 42)
+        grid_search = GridSearchCV(estimator = self.selectedModel,
+                           param_grid = parameters,
+                           scoring = 'accuracy',
+                           cv = 10,
+                           n_jobs = -1)
+        grid_search.fit(X_train, y_train)
+        print("Best: %f using %s" % (grid_search.best_score_, grid_search.best_params_))
+        self.selectedModel = grid_search.best_estimator_
+        self.selectedModel.fit(X_train, y_train)
+        y_pred = self.selectedModel.predict(X_test)
+  
+        print(accuracy_score(y_test, y_pred))
+        print(confusion_matrix(y_test, y_pred))
+        print(classification_report(y_test, y_pred))
+        
     def model_testing(self):
         self.test = self.count_vectorizer.transform(self.preprocesarTextos(self.test_set)).toarray()
         y_pred = self.selectedModel.predict(self.test)
@@ -155,22 +196,23 @@ class ModeloDesp:
         # load the model from disk
         bow_model_save = load(open(filename, 'rb'))
         self.count_vectorizer, self.selectedModel = bow_model_save
-    
+        
         
 
 prueba = ModeloDesp()
-'''
+
 prueba.cargarTextosTraining("data/Noticias/Despoblacion/")
 prueba.cargarTextosTraining("data/Noticias/No Despoblacion/")
-prueba.model_training(modelName = "AUTO", min_dif = 0.06)
+prueba.model_training(modelName = "LDA", min_dif = 0.06)
+prueba.model_self_tuning()
 prueba.save_model("finalized_model.sav")
-'''
 
+'''
 prueba.load_model("finalized_model.sav")
 prueba.cargarTextosTest("data/unlabel/unlabel-1/")
 prueba.cargarTextosTest("data/unlabel/unlabel-2/")
 prueba.model_testing()
-
+'''
 
 
 
