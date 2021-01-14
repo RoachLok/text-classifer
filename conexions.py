@@ -19,6 +19,8 @@ def on_file_upload(json_array, file_type):
 
 
 def get_file_content(file_name, file_type):
+    global despo_samples
+    global nodespo_samples
     if file_type == 'despo':
         for file in despo_samples:
             if file['name'] == file_name:
@@ -29,39 +31,36 @@ def get_file_content(file_name, file_type):
                 return file['content']
 
 
-'''
-
+# Filename required to save the file
 def train_model(stopwords, prune):
     prune = prune / 100
-    return model.save_model()
+    model.model_training(model.dataset, prune, stopwords)
+    return model.save_model(model.count_vectorizer, model.selectedModel)
 
-def loadTrain(model):
-    model.dataset = ModeloDesp.cargarTextosTraining(
-        model.dataset, chooserDir())
 
+# Check if model exists, if not dont apply model
+def apply_model(optimizations):
+    if optimizations == True and not model.dataset.empty:
+        model.model_self_tuning()
+    else:
+        return "Error the model name is null ore empty"
+
+
+def load_model(model, model_selected):
+    if model_selected is not None:
+        model.load_model(model_selected)
+        return True
+    else:
+        return False
+
+
+'''
 def loadTest(model):
     model.test_set = ModeloDesp.cargarTextosTest(model.test_set, chooserDir())
-
-
-def trainModel(model):
-    model.count_vectorizer, model.selectedModel = ModeloDesp.model_training(
-        model.dataset, "AUTO", 0.06)
-
-
-def saveModel(model):
-    ModeloDesp.save_model(
-        chooserSave(), model.count_vectorizer, model.selectedModel)
-
-
-def loadModel(model):
-    model.count_vectorizer, model.selectedModel = ModeloDesp.load_model(
-        chooserLoad())
-
 
 def testModel(model):
     ModeloDesp.model_testing(
         model.test_set, model.count_vectorizer, model.selectedModel)
-
 '''
 
 
