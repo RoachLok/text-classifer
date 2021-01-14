@@ -1,3 +1,4 @@
 .vscode
 finalized_model.sav
 data
+__pycache__

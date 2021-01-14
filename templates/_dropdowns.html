@@ -1,0 +1,5 @@
+{% for file_name in file_names %}
+    <button class="dropdown-item border-top border-info" id="list-{{ file_type }}-{{ loop.index }}-list" data-toggle="list" href="#list-{{ file_type }}-{{ loop.index }}" role="tab" aria-controls="controls-{{ file_type }}-{{ loop.index }}">
+        {{ file_name["name"] }}
+    </button>
+{% endfor %}
