@@ -34,37 +34,69 @@
             </div>
         </div>
         <div class="row">
-
-                <div class="card" style="margin-top: 3%;">
-                    <div class="card-header" style="height: 45px;">
-                        <button class="btn btn-link" data-toggle="collapse" href="#collapse1" style="margin-top: -3%;">
-                            <p style="font-size: 1.1rem;">Opciones de Preprocesamiento</p>
-                        </button>
+            <div class="card" style="margin-top: 3%;">
+                <div class="card-header" style="height: 45px;">
+                    <button class="btn btn-link" data-toggle="collapse" href="#collapse1" style="margin-top: -3%;">
+                        <p style="font-size: 1.1rem;">Opciones de Preprocesamiento</p>
+                    </button>
+                </div>
+                <div id="collapse1" class="card-body collapse">
+                    <div class="row border-bottom border-info">
+                        <p style="margin-left: 10%;">Uso de Stopwords: </p> 
+                        <input style="margin-left: 70%; margin-top: 3%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio1" value="option1">
                     </div>
-                    <div id="collapse1" class="card-body collapse">
-                        <div class="row border-bottom border-info">
-                            <p style="margin-left: 10%;">Uso de Stopwords: </p> 
-                            <input style="margin-left: 70%; margin-top: 3%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                    <div class="row border-top border-bottom border-info">
+                        <div class="col">
+                            <p style="margin-top: 10%; margin-left: 1%;">Poda:</p> 
                         </div>
-                        <div class="row border-top border-bottom border-info">
-                            <p style="margin-top: 5%; margin-left: 1%;">Poda (0 - 10):</p> 
-                            <input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="2"/>
+                        <div class="col" style="margin-top: 3%;">
+                            <input id="poda-range" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" style="width: 10vw;"/>
                         </div>
-                        <div class="row border-top border-info">
-                            <p style="margin-left: 10%; margin-top: 5%;">Uso de Stopwords: </p> 
-                            <input style="margin-left: 70%; margin-top: 7%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio2" value="option1">
-                        </div>
+                    </div>
+                    <div class="row border-top border-info">
+                        <p style="margin-left: 10%; margin-top: 5%;">Uso de Stopwords: </p> 
+                        <input style="margin-left: 70%; margin-top: 7%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio2" value="option1">
                     </div>
                 </div>
-
+            </div>
         </div>
     </div>  
 
     <div class="col-sm">
     </div>
-
 </div>
 
+<div class="row" style="width: 116%; margin-left: -5%;">
+    <!-- Matches Text-Area -->
+    <label for="matches-tabContent">Textos cargados: </label>
+    <textarea id="text-area" class="form-control" style="height: 61vh;" readonly>Text placeholder. Hello</textarea>
+</div>
+
+<script>
+    var slider = new Slider("#poda-range", {
+        precision: 1,
+        value: 20// Slider will instantiate showing 8.12 due to specified precision
+    });
+</script>
+
+<script>
+    function getFileText(fileId) {
+        // Create a request variable and assign a new XMLHttpRequest object to it.
+        const request = new XMLHttpRequest();
+
+        // Open a new connection, using the POST request on the URL endpoint.
+        request.open('GET', './get_train_files/'+fileId, true);
+
+        request.onload = function () {  // Process response somehow // A json can also be retrieved. 
+            const text_container = document.getElementById('text-area');
+            text_container.innerText = this.response;
+        }
+
+        // Send request
+        request.send();
+    }
+</script>
+    
 <script>
     function samplesSelect(file_type) {
         const directory_files = document.getElementById(file_type+'-input').files;
@@ -98,7 +130,6 @@
         request.open('POST', './get_train_files/'+file_type, true);
 
         request.onload = function () {  // Process response somehow // A json can also be retrieved. 
-            console.log(file_type + '-samples');
             const dropdown = document.getElementById(file_type + '-samples');
             dropdown.innerHTML = this.response;
         }
@@ -107,7 +138,6 @@
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         request.send(JSON.stringify(jsonified_files));
     }
-
 </script> 
 
 {% endblock %}
