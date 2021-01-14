@@ -96,16 +96,14 @@ class ModeloDesp:
         self.y = self.dataset['categoria'].values # Dependent variable
         X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size = 0.2, random_state = 42)
         if modelName == "AUTO":
-            print("Auto model selection")
+            #print("Auto model selection")
             models = []
             models.append(('LR', LogisticRegression()))
             models.append(('LDA', LinearDiscriminantAnalysis()))
             models.append(('NB', GaussianNB()))
             models.append(('SVM', SVC()))
-            # models.append(('GBM', GradientBoostingClassifier()))
             models.append(('RF', RandomForestClassifier()))
             models.append(('ANN', MLPClassifier()))
-            #models.append(('ANN', MLPClassifier(hidden_layer_sizes = (300, 150), batch_size = 16, learning_rate = "adaptive", max_iter=100)))
             
             results = []
             names = []
@@ -114,10 +112,10 @@ class ModeloDesp:
                 results.append(cv_results)
                 names.append(name)
                 msg = f"{name}: {cv_results.mean()} ({cv_results.std()})"
-                print(msg)
+                #print(msg)
                 
             best_model = dict(zip(names, [np.average(result) for result in results]))
-            print(max(best_model, key=best_model.get))
+            #print(max(best_model, key=best_model.get))
             self.selectedModel = [y for x, y in models if x == max(best_model, key=best_model.get)][0]
             self.selectedModel = self.selectedModel.fit(X_train, y_train)
             y_pred = self.selectedModel.predict(X_test)
@@ -133,16 +131,16 @@ class ModeloDesp:
         else:
             self.selectedModel = self.model_name_selection(modelName)
             cv_results = cross_val_score(self.selectedModel, X_train, y_train, cv = 10, scoring = "accuracy")
-            print(f"{modelName}: {cv_results.mean()} ({cv_results.std()})")
+            #print(f"{modelName}: {cv_results.mean()} ({cv_results.std()})")
             self.selectedModel.fit(X_train, y_train)
             y_pred = self.selectedModel.predict(X_test)
-  
+        '''
         print(accuracy_score(y_test, y_pred))
         print(confusion_matrix(y_test, y_pred))
         print(classification_report(y_test, y_pred))
-
+        '''
     def model_self_tuning(self):
-        print("Parameter tuning")
+        #print("Parameter tuning")
         parameters = []
         if type(self.selectedModel).__name__ == 'LogisticRegression':
             parameters = [{'C':np.arange(0.1, 1.1, 0.1).tolist()}, {'penalty': ['elasticnet'] ,'C':np.arange(0.1, 1.1, 0.1).tolist()}]
@@ -151,7 +149,8 @@ class ModeloDesp:
         elif type(self.selectedModel).__name__ == 'KNeighborsClassifier':
             parameters = [{'n_neighbors' : np.arange(1, 31, 1), 'weights':['uniform', 'distance']}]
         elif type(self.selectedModel).__name__ == 'GaussianNB':
-            #parameters = 
+            # Eliminar o cambiar
+            #parameters =
             pass
         elif type(self.selectedModel).__name__ == 'SVC':
             parameters = [{'C':np.arange(0.1, 1.1, 0.1).tolist(), 'kernel':['linear', 'poly', 'rbf', 'sigmoid'], 'gamma':['scale', 'auto']}]
@@ -160,7 +159,7 @@ class ModeloDesp:
         elif type(self.selectedModel).__name__ == 'MLPClassifier':
             parameters = [{'hidden_layer_sizes':[(50, 50), (100, 100, 100), (400, 100, 50, 10)], 'batch_size':[16, 32, 64], 'learning_rate':['adaptive'], 'max_iter':[50,100,300]}]
         
-        print(parameters)
+        #print(parameters)
         X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size = 0.2, random_state = 42)
         grid_search = GridSearchCV(estimator = self.selectedModel,
                            param_grid = parameters,
@@ -168,23 +167,24 @@ class ModeloDesp:
                            cv = 10,
                            n_jobs = -1)
         grid_search.fit(X_train, y_train)
-        print("Best: %f using %s" % (grid_search.best_score_, grid_search.best_params_))
+        #print("Best: %f using %s" % (grid_search.best_score_, grid_search.best_params_))
         self.selectedModel = grid_search.best_estimator_
         self.selectedModel.fit(X_train, y_train)
         y_pred = self.selectedModel.predict(X_test)
-  
+        '''
         print(accuracy_score(y_test, y_pred))
         print(confusion_matrix(y_test, y_pred))
         print(classification_report(y_test, y_pred))
-        
+        '''
     def model_testing(self):
         self.test = self.count_vectorizer.transform(self.preprocesarTextos(self.test_set)).toarray()
         y_pred = self.selectedModel.predict(self.test)
         y_pred_proba = self.selectedModel.predict_proba(self.test)
         y_pred_proba = np.matrix.round(y_pred_proba, 3)
+        '''
         print(y_pred)
         print(y_pred_proba)
-    
+        '''
     def save_model(self, filename):
         # save the model to disk
         #filename = 'finalized_model.sav'
@@ -197,8 +197,12 @@ class ModeloDesp:
         bow_model_save = load(open(filename, 'rb'))
         self.count_vectorizer, self.selectedModel = bow_model_save
         
-        
-
+      
+'''
+La clase esta para pruebas. O mantenerla y crear un objeto externo;
+o generar una clase externa que llame a los metodos y pueda mantener las variables en memoria.
+'''
+'''
 prueba = ModeloDesp()
 
 prueba.cargarTextosTraining("data/Noticias/Despoblacion/")
@@ -206,7 +210,7 @@ prueba.cargarTextosTraining("data/Noticias/No Despoblacion/")
 prueba.model_training(modelName = "LDA", min_dif = 0.06)
 prueba.model_self_tuning()
 prueba.save_model("finalized_model.sav")
-
+'''
 '''
 prueba.load_model("finalized_model.sav")
 prueba.cargarTextosTest("data/unlabel/unlabel-1/")
