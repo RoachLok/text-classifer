@@ -30,9 +30,6 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.model_selection import GridSearchCV
 
-from tkinter import filedialog
-from tkinter import *
-
 
 class ModeloDesp:
     def __init__(self):
@@ -58,7 +55,7 @@ class ModeloDesp:
                 self.test_set = self.test_set.append({'noticia': file.read()}, ignore_index=True)
               
     
-    def preprocesarTextos(self, dataset):
+    def preprocesarTextos(self, dataset, stopwords_setting = True):
         # Limpieza de textos, en los que se incluye tokenizacion y stemming.
         corpus = []
         for i in range(len(dataset)):
@@ -67,9 +64,12 @@ class ModeloDesp:
             text = text.split() # Tercera limpieza = dividir los textos en sus diferentes palabras para que podamos aplicar lematizacion/stemming a cada palabra
             # Cuarta limpieza
             #ps = PorterStemmer()
-            all_stopwords = stopwords.words('spanish')
             sst = SnowballStemmer('spanish')
-            text = [sst.stem(word) for word in text if not word in set(all_stopwords)] # For en una línea, aplicamos stemming a cada palabra con la condición de no tratar y deshacerse de las stopwords.
+            all_stopwords = stopwords.words('spanish')
+            if stopwords_setting:
+                text = [sst.stem(word) for word in text if not word in set(all_stopwords)] # For en una línea, aplicamos stemming a cada palabra con la condición de no tratar y deshacerse de las stopwords.
+            else:
+                text = [sst.stem(word) for word in text]
             text = ' '.join(text) # Volvemos a unir las palabras de los textos separados por espacio para obtener el formato original de los textos
             corpus.append(text)  
         return corpus
@@ -90,9 +90,9 @@ class ModeloDesp:
         elif modelName == "ANN":
             return MLPClassifier()
     
-    def model_training(self, modelName, min_dif = None):
+    def model_training(self, modelName, min_dif = None, stopwords_setting = True):
         self.count_vectorizer = CountVectorizer(min_df = min_dif)
-        self.X = self.count_vectorizer.fit_transform(self.preprocesarTextos(self.dataset)).toarray()
+        self.X = self.count_vectorizer.fit_transform(self.preprocesarTextos(self.dataset, stopwords_setting)).toarray()
         self.y = self.dataset['categoria'].values # Dependent variable
         X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size = 0.2, random_state = 42)
         if modelName == "AUTO":
@@ -128,17 +128,25 @@ class ModeloDesp:
             ax.set_xticklabels(names)
             plt.show()
             
+            return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred), plt
+            
         else:
             self.selectedModel = self.model_name_selection(modelName)
             cv_results = cross_val_score(self.selectedModel, X_train, y_train, cv = 10, scoring = "accuracy")
             #print(f"{modelName}: {cv_results.mean()} ({cv_results.std()})")
             self.selectedModel.fit(X_train, y_train)
             y_pred = self.selectedModel.predict(X_test)
+            
+            return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred)
+        
         '''
         print(accuracy_score(y_test, y_pred))
         print(confusion_matrix(y_test, y_pred))
         print(classification_report(y_test, y_pred))
         '''
+        
+        
+        
     def model_self_tuning(self):
         #print("Parameter tuning")
         parameters = []
@@ -171,11 +179,14 @@ class ModeloDesp:
         self.selectedModel = grid_search.best_estimator_
         self.selectedModel.fit(X_train, y_train)
         y_pred = self.selectedModel.predict(X_test)
+        
         '''
         print(accuracy_score(y_test, y_pred))
         print(confusion_matrix(y_test, y_pred))
         print(classification_report(y_test, y_pred))
         '''
+        return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred)
+        
     def model_testing(self):
         self.test = self.count_vectorizer.transform(self.preprocesarTextos(self.test_set)).toarray()
         y_pred = self.selectedModel.predict(self.test)
@@ -185,6 +196,8 @@ class ModeloDesp:
         print(y_pred)
         print(y_pred_proba)
         '''
+        return y_pred, y_pred_proba
+    
     def save_model(self, filename):
         # save the model to disk
         #filename = 'finalized_model.sav'
@@ -202,15 +215,15 @@ class ModeloDesp:
 La clase esta para pruebas. O mantenerla y crear un objeto externo;
 o generar una clase externa que llame a los metodos y pueda mantener las variables en memoria.
 '''
-'''
+
 prueba = ModeloDesp()
 
 prueba.cargarTextosTraining("data/Noticias/Despoblacion/")
 prueba.cargarTextosTraining("data/Noticias/No Despoblacion/")
-prueba.model_training(modelName = "LDA", min_dif = 0.06)
+prueba.model_training(modelName = "AUTO", min_dif = 0.06, stopwords_setting = False)
 prueba.model_self_tuning()
 prueba.save_model("finalized_model.sav")
-'''
+
 '''
 prueba.load_model("finalized_model.sav")
 prueba.cargarTextosTest("data/unlabel/unlabel-1/")
