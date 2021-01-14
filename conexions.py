@@ -6,39 +6,38 @@ from tkinter import *
 from modelo_noticias_despoblacion import ModeloDesp
 
 
-class ModeloDesp:
-    def __init__(self):
-        self.dataset = pd.DataFrame(columns=["noticia", "categoria"])
-        self.test_set = pd.DataFrame(columns=["noticia"])
-        self.count_vectorizer = None
-        self.selectedModel = None
-        self.test = None
+despo_samples = []
+nodespo_samples = []
+model = ModeloDesp()
 
 
-def chooserDir():  # dir
-    root = Tk()
-    root.withdraw()  # Starts interactive file input
-    folder_selected = filedialog.askdirectory()
-    return folder_selected
+def on_file_upload(json_array, file_type):
+    if file_type == 'despo':
+        despo_samples = json_array
+    else:
+        nodespo_samples = json_array
 
 
-def chooserLoad():  # load
-    load = Tk()
-    load.withdraw()
-    load_selected = filedialog.askopenfilename()
-    return load_selected
+def get_file_content(file_name, file_type):
+    if file_type == 'despo':
+        for file in despo_samples:
+            if file['name'] == file_name:
+                return file['content']
+    else:
+        for file in nodespo_samples:
+            if file['name'] == file_name:
+                return file['content']
 
 
-def chooserSave():  # save
-    save = Tk()
-    save.withdraw()
-    save_selected = filedialog.asksaveasfilename()
-    return save_selected
+'''
 
+def train_model(stopwords, prune):
+    prune = prune / 100
+    return model.save_model()
 
 def loadTrain(model):
-    model.dataset = ModeloDesp.cargarTextosTraining(model.dataset, chooserDir())
-
+    model.dataset = ModeloDesp.cargarTextosTraining(
+        model.dataset, chooserDir())
 
 def loadTest(model):
     model.test_set = ModeloDesp.cargarTextosTest(model.test_set, chooserDir())
@@ -50,15 +49,20 @@ def trainModel(model):
 
 
 def saveModel(model):
-    ModeloDesp.save_model(chooserSave(), model.count_vectorizer, model.selectedModel)
+    ModeloDesp.save_model(
+        chooserSave(), model.count_vectorizer, model.selectedModel)
 
 
 def loadModel(model):
-    model.count_vectorizer, model.selectedModel = ModeloDesp.load_model(chooserLoad())
+    model.count_vectorizer, model.selectedModel = ModeloDesp.load_model(
+        chooserLoad())
 
 
 def testModel(model):
-    ModeloDesp.model_testing(model.test_set, model.count_vectorizer, model.selectedModel)
+    ModeloDesp.model_testing(
+        model.test_set, model.count_vectorizer, model.selectedModel)
+
+'''
 
 
 def getNames(dir):
