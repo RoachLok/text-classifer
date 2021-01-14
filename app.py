@@ -1,4 +1,5 @@
-from flask import Flask, json, render_template, request, jsonify
+from flask import Flask, render_template, request
+from conexions import *
 
 app = Flask(__name__)
 
@@ -10,11 +11,13 @@ def classifier():
 def about():
     return render_template('about.html')
 
-@app.route('/get_train_files', methods=['GET', 'POST'])
-def get_train_file():
+@app.route('/get_train_files/<file_type>', methods=['GET', 'POST'])
+def get_train_file(file_type):
     if request.method == 'POST':
-        pass
-    return jsonify("name: test", "name2: test2"), 201
+        json_array = request.get_json()
+        return render_template('_dropdowns.html', file_names = json_array, file_type = file_type)
+
+    return render_template('_dropdowns.html', file_type = file_type)
 
 @app.route('/')
 def index():

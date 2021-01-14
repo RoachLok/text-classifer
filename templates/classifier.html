@@ -1,38 +1,113 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<div class="jumbotron text-center" style="height: 7%;">
+<div class="jumbotron text-center" style="height: 7%; width: 120%; margin-left: -10%;">
     <h1 style="margin-top: -0.9em;">Clasificador de Texto</h1> 
 </div>
 
-<div class="btn-group">
-    <button class="btn btn-secondary btn-lg" onclick="trainSelect()">
-        Selecciona Textos Clasificados
-    </button>
-    <button type="button" class="btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-    <div class="dropdown-menu" id="train-files">
-        
+<div class="row" style="width: 116%; margin-left: -5%;">
+    <div class="col-sm-10">
+        <div class="row">
+            <div class="btn-group">
+                <button class="btn btn-info" onclick="document.getElementById('despo-input').click();" style="width: 15vw; min-width: 222px;">
+                    Textos Despoblación
+                </button>    <input id="despo-input" onChange="samplesSelect('despo')" type="file" style="display: none;" webkitdirectory directory multiple/>
+
+                <button type="button" class="btn btn-info btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                <div class="dropdown-menu" id="despo-samples">
+                    <button class="dropdown-item border-top border-info disabled" id="list-1-list" data-toggle="list" href="#list-1" role="tab" aria-controls="controls-1">
+                        No se han cargado archivos.
+                    </button>
+                </div>
+            </div>
+            <div class="btn-group" style="margin-left: 10%;">
+                <button class="btn btn-warning" onclick="document.getElementById('nodespo-input').click();" style="width: 15vw; min-width: 222px;">
+                    Textos No_Despoblación
+                </button>    <input id="nodespo-input" onChange="samplesSelect('nodespo')" type="file" style="display: none;" webkitdirectory directory multiple/>
+
+                <button type="button" class="btn btn-warning btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                <div class="dropdown-menu" id="nodespo-samples">
+                    <button class="dropdown-item border-top border-info disabled" id="list-1-list" data-toggle="list" href="#list-1" role="tab" aria-controls="controls-1">
+                        No se han cargado archivos.
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+                <div class="card" style="margin-top: 3%;">
+                    <div class="card-header" style="height: 45px;">
+                        <button class="btn btn-link" data-toggle="collapse" href="#collapse1" style="margin-top: -3%;">
+                            <p style="font-size: 1.1rem;">Opciones de Preprocesamiento</p>
+                        </button>
+                    </div>
+                    <div id="collapse1" class="card-body collapse">
+                        <div class="row border-bottom border-info">
+                            <p style="margin-left: 10%;">Uso de Stopwords: </p> 
+                            <input style="margin-left: 70%; margin-top: 3%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                        </div>
+                        <div class="row border-top border-bottom border-info">
+                            <p style="margin-top: 5%; margin-left: 1%;">Poda (0 - 10):</p> 
+                            <input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="2"/>
+                        </div>
+                        <div class="row border-top border-info">
+                            <p style="margin-left: 10%; margin-top: 5%;">Uso de Stopwords: </p> 
+                            <input style="margin-left: 70%; margin-top: 7%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio2" value="option1">
+                        </div>
+                    </div>
+                </div>
+
+        </div>
+    </div>  
+
+    <div class="col-sm">
     </div>
+
 </div>
 
-
 <script>
-    function trainSelect(){
+    function samplesSelect(file_type) {
+        const directory_files = document.getElementById(file_type+'-input').files;
+
+        let jsonified_files = [];
+        for (file of directory_files) {
+            let fr = new FileReader();
+            fr.onload  = ( function(file_copy) {
+                return function(event) {
+                jsonified_files.push( {
+                    name             : file_copy.name,
+                    type             : file_copy.type,
+                    lastModified     : file_copy.lastModified,
+                    lastModifiedDate : file_copy.lastModifiedDate,
+                    size             : file_copy.size,
+                    content          : event.target.result
+                });
+                if (jsonified_files.length == directory_files.length) {
+                    dropdownsRequest(jsonified_files, file_type);
+                }
+            };} (file))
+            fr.readAsText(file);  
+        }   
+    }
+
+    function dropdownsRequest(jsonified_files, file_type) {
         // Create a request variable and assign a new XMLHttpRequest object to it.
         const request = new XMLHttpRequest();
 
-        // Open a new connection, using the GET request on the URL endpoint
-        request.open('GET', './get_train_files', true);
+        // Open a new connection, using the POST request on the URL endpoint.
+        request.open('POST', './get_train_files/'+file_type, true);
 
         request.onload = function () {  // Process response somehow // A json can also be retrieved. 
-            const files_drop_buttons = document.createElement("train-file");
-            files_drop_buttons.innerHTML = this.response;            
-            const train_files = document.getElementById("train-files");
-            train_files.replaceWith(files_drop_buttons);
+            console.log(file_type + '-samples');
+            const dropdown = document.getElementById(file_type + '-samples');
+            dropdown.innerHTML = this.response;
         }
 
         // Send request
-        request.send();
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        request.send(JSON.stringify(jsonified_files));
     }
-</script>
+
+</script> 
+
 {% endblock %}
