@@ -1,5 +1,6 @@
+<input class="form-control" type="text" placeholder="Buscar Archivo" id="{{ file_type }}-search-input" onkeyup="searchDropdown('{{ file_type }}')">
 {% for file_name in file_names %}
-    <button class="dropdown-item border-top border-info" id="list-{{ file_type }}-{{ loop.index }}-list" data-toggle="list" href="#list-{{ file_type }}-{{ loop.index }}" role="tab" aria-controls="controls-{{ file_type }}-{{ loop.index }}" onclick="getFileText('{{ file_type }}-{{ file_name['name']|safe }}')">
+    <button class="dropdown-item border-top border-info" onclick="getFileText('{{ file_type }}-{{ file_name['name']|safe }}')">
         {{ file_name["name"] }}
     </button>
 {% endfor %}

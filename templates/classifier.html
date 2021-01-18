@@ -10,10 +10,10 @@
         <button class="btn btn-info" onclick="document.getElementById('despo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
             <span>Despoblación</span>
         </button>    <input id="despo-input" onChange="samplesSelect('despo')" type="file" style="display: none;" webkitdirectory directory multiple/>
-        <button id="despo-drop" type="button" class="col-1 justify-content-center btn btn-info btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #33b5e5 !important;">
+        <button id="despo-drop" type="button" class="col-1 btn btn-info btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #33b5e5 !important;">
             <span id="despo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
         </button>
-        <div class="dropdown-menu" id="despo-samples" style="overflow-y: scroll; max-height: 25vh">
+        <div class="dropdown-menu" id="despo-samples" style="overflow-y: scroll; max-height: 25vh;">
             <button class="dropdown-item border-top border-info disabled">
                 No se han cargado archivos.
             </button>
@@ -23,7 +23,7 @@
         <button class="btn btn-warning justify-content-around" onclick="document.getElementById('nodespo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
             <span>No_Despoblación</span>
         </button>    <input id="nodespo-input" onChange="samplesSelect('nodespo')" type="file" style="display: none;" webkitdirectory directory multiple/>
-        <button id="nodespo-drop" type="button" class="col-1 justify-content-center btn btn-warning btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #ffbb33 !important;">
+        <button id="nodespo-drop" type="button" class="col-1 btn btn-warning btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #ffbb33 !important;">
             <span id="nodespo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
         </button>
         <div class="dropdown-menu" id="nodespo-samples" style="overflow-y: scroll; max-height: 25vh">
@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <div class="row border-top border-info">
-                    <p style="margin-left: 10%; margin-top: 5%;">Uso de Stopwords: </p> 
+                    <p style="margin-left: 10%; margin-top: 5%;">Auto-Ajuste: </p> 
                     <input style="margin-left: 70%; margin-top: 7%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio2" value="option1">
                 </div>
             </div>
@@ -74,7 +74,7 @@
 <script>
     var slider = new Slider("#prune-range", {
         precision: 1,
-        value: 20// Slider will instantiate showing 8.12 due to specified precision
+        value: 20   // Slider will instantiate showing 20 due to specified precision
     });
 </script>
 
@@ -158,6 +158,29 @@
         request.send(JSON.stringify(jsonified_files));
     }
 </script> 
+
+<!-- Search on dropdowns -->
+<script>
+    function searchDropdown(file_type) {
+        /*
+        * Source: https://www.w3schools.com/howto/howto_js_filter_dropdown.asp
+        */
+
+        let input, filter, ul, li, a, i;
+        input = document.getElementById(file_type + '-search-input');
+        filter = input.value.toUpperCase();
+        div = document.getElementById(file_type + '-samples');
+        button = div.getElementsByTagName('button');
+        for (i = 0; i < button.length; i++) {
+            txtValue = button[i].textContent || button[i].innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                button[i].style.display = "";
+            } else {
+                button[i].style.display = "none";
+            }
+        }
+    } 
+</script>
 
 
 {% endblock %}
