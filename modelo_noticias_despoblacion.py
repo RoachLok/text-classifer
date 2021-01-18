@@ -1,25 +1,15 @@
-
 # Importing the libraries
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import os
 import re
-import time
-import nltk
 from nltk.stem import SnowballStemmer
-#nltk.download('stopwords')
 from nltk.corpus import stopwords
-from nltk.probability import FreqDist
-
 from pickle import dump
 from pickle import load
-
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
-
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
@@ -30,30 +20,28 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.model_selection import GridSearchCV
 
+#import nltk
+#nltk.download('stopwords')
 
 class ModeloDesp:
     def __init__(self):
-        self.dataset = pd.DataFrame(columns = ["noticia", "categoria"])
         self.test_set = pd.DataFrame(columns = ["noticia"])
         self.count_vectorizer = None
         self.selectedModel = None
         self.X = None
         self.y = None
         self.test = None
-    
-    def cargarTextosTraining(self, dirTrain):
-        files_name = []
-        for f in os.listdir(dirTrain):
-            path = os.path.join(dirTrain, f)
-            with open(path, 'r', encoding='utf-8', errors = 'ignore') as file:
-                self.dataset = self.dataset.append({'noticia': file.read(), 'categoria':  os.path.basename(dirTrain[:-1])}, ignore_index=True)
-        
-    def cargarTextosTest(self, dirTest):
-        for f in os.listdir(dirTest):
-            path = os.path.join(dirTest, f)
-            with open(path, 'r', encoding='utf-8', errors = 'ignore') as file:
-                self.test_set = self.test_set.append({'noticia': file.read()}, ignore_index=True)
-              
+
+    def cargarTextosTrainingDespo(self, files_json, category):
+        new_df = pd.read_json(files_json)
+        new_df.drop('type', 'lastModified', 'lastModifiedDate', 'size')
+        new_df['categoria'] = category
+        new_df.join(self.test_set)
+        return new_df
+
+    def cargarTextosTest(self, files_json):
+        self.test_set = pd.read_json(files_json)
+        self.test_set.drop('type', 'lastModified', 'lastModifiedDate', 'size')
     
     def preprocesarTextos(self, dataset, stopwords_setting = True):
         # Limpieza de textos, en los que se incluye tokenizacion y stemming.
@@ -90,10 +78,10 @@ class ModeloDesp:
         elif modelName == "ANN":
             return MLPClassifier()
     
-    def model_training(self, modelName, min_dif = None, stopwords_setting = True):
+    def model_training(self, modelName, dataset, min_dif = None, stopwords_setting = True):
         self.count_vectorizer = CountVectorizer(min_df = min_dif)
-        self.X = self.count_vectorizer.fit_transform(self.preprocesarTextos(self.dataset, stopwords_setting)).toarray()
-        self.y = self.dataset['categoria'].values # Dependent variable
+        self.X = self.count_vectorizer.fit_transform(self.preprocesarTextos(dataset, stopwords_setting)).toarray()
+        self.y = dataset['categoria'].values # Dependent variable
         X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size = 0.2, random_state = 42)
         if modelName == "AUTO":
             #print("Auto model selection")
@@ -144,8 +132,6 @@ class ModeloDesp:
         print(confusion_matrix(y_test, y_pred))
         print(classification_report(y_test, y_pred))
         '''
-        
-        
         
     def model_self_tuning(self):
         #print("Parameter tuning")
@@ -215,7 +201,7 @@ class ModeloDesp:
 La clase esta para pruebas. O mantenerla y crear un objeto externo;
 o generar una clase externa que llame a los metodos y pueda mantener las variables en memoria.
 '''
-
+"""
 prueba = ModeloDesp()
 
 prueba.cargarTextosTraining("data/Noticias/Despoblacion/")
@@ -223,13 +209,10 @@ prueba.cargarTextosTraining("data/Noticias/No Despoblacion/")
 prueba.model_training(modelName = "AUTO", min_dif = 0.06, stopwords_setting = False)
 prueba.model_self_tuning()
 prueba.save_model("finalized_model.sav")
-
+"""
 '''
 prueba.load_model("finalized_model.sav")
 prueba.cargarTextosTest("data/unlabel/unlabel-1/")
 prueba.cargarTextosTest("data/unlabel/unlabel-2/")
 prueba.model_testing()
 '''
-
-
-
