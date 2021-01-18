@@ -1,79 +1,78 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<div class="jumbotron text-center" style="height: 7%; width: 120%; margin-left: -10%;">
-    <h1 style="margin-top: -0.9em;">Clasificador de Texto</h1> 
+<div class="jumbotron text-center" style="height: 7%;">
+    <h1 style="margin-top: -0.7em;">Clasificador de Texto</h1> 
 </div>
 
-<div class="row" style="width: 116%; margin-left: -5%;">
-    <div class="col-sm-10">
-        <div class="row">
-            <div class="btn-group">
-                <button class="btn btn-info" onclick="document.getElementById('despo-input').click();" style="width: 15vw; min-width: 222px;">
-                    Textos Despoblación
-                </button>    <input id="despo-input" onChange="samplesSelect('despo')" type="file" style="display: none;" webkitdirectory directory multiple/>
-
-                <button type="button" class="btn btn-info btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                <div class="dropdown-menu" id="despo-samples">
-                    <button class="dropdown-item border-top border-info disabled" id="list-1-list" data-toggle="list" href="#list-1" role="tab" aria-controls="controls-1">
-                        No se han cargado archivos.
-                    </button>
-                </div>
-            </div>
-            <div class="btn-group" style="margin-left: 10%;">
-                <button class="btn btn-warning" onclick="document.getElementById('nodespo-input').click();" style="width: 15vw; min-width: 222px;">
-                    Textos No_Despoblación
-                </button>    <input id="nodespo-input" onChange="samplesSelect('nodespo')" type="file" style="display: none;" webkitdirectory directory multiple/>
-
-                <button type="button" class="btn btn-warning btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                <div class="dropdown-menu" id="nodespo-samples">
-                    <button class="dropdown-item border-top border-info disabled" id="list-1-list" data-toggle="list" href="#list-1" role="tab" aria-controls="controls-1">
-                        No se han cargado archivos.
-                    </button>
-                </div>
-            </div>
+<div class="row justify-content-around">
+    <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
+        <button class="btn btn-info" onclick="document.getElementById('despo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
+            <span>Despoblación</span>
+        </button>    <input id="despo-input" onChange="samplesSelect('despo')" type="file" style="display: none;" webkitdirectory directory multiple/>
+        <button id="despo-drop" type="button" class="col-1 justify-content-center btn btn-info btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #33b5e5 !important;">
+            <span id="despo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+        </button>
+        <div class="dropdown-menu" id="despo-samples" style="overflow-y: scroll; max-height: 25vh">
+            <button class="dropdown-item border-top border-info disabled">
+                No se han cargado archivos.
+            </button>
         </div>
-        <div class="row">
-            <div class="card" style="margin-top: 3%;">
-                <div class="card-header" style="height: 45px;">
-                    <button class="btn btn-link" data-toggle="collapse" href="#collapse1" style="margin-top: -3%;">
-                        <p style="font-size: 1.1rem;">Opciones de Preprocesamiento</p>
-                    </button>
-                </div>
-                <div id="collapse1" class="card-body collapse">
-                    <div class="row border-bottom border-info">
-                        <p style="margin-left: 10%;">Uso de Stopwords: </p> 
-                        <input style="margin-left: 70%; margin-top: 3%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio1" value="option1">
-                    </div>
-                    <div class="row border-top border-bottom border-info">
-                        <div class="col">
-                            <p style="margin-top: 10%; margin-left: 1%;">Poda:</p> 
-                        </div>
-                        <div class="col" style="margin-top: 3%;">
-                            <input id="poda-range" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" style="width: 10vw;"/>
-                        </div>
-                    </div>
-                    <div class="row border-top border-info">
-                        <p style="margin-left: 10%; margin-top: 5%;">Uso de Stopwords: </p> 
-                        <input style="margin-left: 70%; margin-top: 7%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio2" value="option1">
-                    </div>
-                </div>
-            </div>
+    </div>
+    <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
+        <button class="btn btn-warning justify-content-around" onclick="document.getElementById('nodespo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
+            <span>No_Despoblación</span>
+        </button>    <input id="nodespo-input" onChange="samplesSelect('nodespo')" type="file" style="display: none;" webkitdirectory directory multiple/>
+        <button id="nodespo-drop" type="button" class="col-1 justify-content-center btn btn-warning btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #ffbb33 !important;">
+            <span id="nodespo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+        </button>
+        <div class="dropdown-menu" id="nodespo-samples" style="overflow-y: scroll; max-height: 25vh">
+            <button class="dropdown-item border-top border-info disabled">
+                No se han cargado archivos.
+            </button>
         </div>
-    </div>  
-
-    <div class="col-sm">
     </div>
 </div>
 
-<div class="row" style="width: 116%; margin-left: -5%;">
+<div class="row border-bottom border-warning">
+
+    <div class="d-flex justify-content-around" style="margin-bottom: 1vh;">
+        <div class="card" style="margin-top: 3%;">
+            <div class="card-header" style="height: 45px;">
+                <button class="btn btn-link" data-toggle="collapse" href="#collapse1" style="margin-top: -3%;">
+                    <p style="font-size: 1.1rem;">Opciones de Preprocesamiento</p>
+                </button>
+            </div>
+            <div id="collapse1" class="card-body collapse">
+                <div class="row border-bottom border-info">
+                    <p style="margin-left: 10%;">Uso de Stopwords: </p> 
+                    <input style="margin-left: 70%; margin-top: 3%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                </div>
+                <div class="row border-top border-bottom border-info">
+                    <div class="col">
+                        <p style="margin-top: 10%; margin-left: 1%;">Poda:</p> 
+                    </div>
+                    <div class="col" style="margin-top: 3%;">
+                        <input id="prune-range" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" style="width: 10vw;"/>
+                    </div>
+                </div>
+                <div class="row border-top border-info">
+                    <p style="margin-left: 10%; margin-top: 5%;">Uso de Stopwords: </p> 
+                    <input style="margin-left: 70%; margin-top: 7%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio2" value="option1">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 2vh; ">
     <!-- Matches Text-Area -->
     <label for="matches-tabContent">Textos cargados: </label>
-    <textarea id="text-area" class="form-control" style="height: 61vh;" readonly>Text placeholder. Hello</textarea>
+    <textarea id="text-area" class="form-control" style="height: 61vh;" readonly>Carga los textos </textarea>
 </div>
 
 <script>
-    var slider = new Slider("#poda-range", {
+    var slider = new Slider("#prune-range", {
         precision: 1,
         value: 20// Slider will instantiate showing 8.12 due to specified precision
     });
@@ -89,7 +88,7 @@
 
         request.onload = function () {  // Process response somehow // A json can also be retrieved. 
             const text_container = document.getElementById('text-area');
-            text_container.innerText = this.response;
+            text_container.value = this.response;
         }
 
         // Send request
@@ -98,7 +97,25 @@
 </script>
     
 <script>
+    function toggleLoad(file_type) {
+        let drop_button = document.getElementById(file_type+'-drop');
+        let spinner     = document.getElementById(file_type+'-spinner');
+
+        if (drop_button.classList.contains('dropdown-toggle')) {
+            spinner.style.removeProperty('display');
+
+            drop_button.classList.remove( 'dropdown-toggle' );
+            drop_button.classList.add   ( 'disabled'        );
+        } else {
+            spinner.style.display = "none";
+
+            drop_button.classList.remove( 'disabled'        );
+            drop_button.classList.add   ( 'dropdown-toggle' );
+        }
+    }
+
     function samplesSelect(file_type) {
+        toggleLoad(file_type);
         const directory_files = document.getElementById(file_type+'-input').files;
 
         let jsonified_files = [];
@@ -132,6 +149,8 @@
         request.onload = function () {  // Process response somehow // A json can also be retrieved. 
             const dropdown = document.getElementById(file_type + '-samples');
             dropdown.innerHTML = this.response;
+    
+            toggleLoad(file_type);
         }
 
         // Send request
@@ -139,5 +158,6 @@
         request.send(JSON.stringify(jsonified_files));
     }
 </script> 
+
 
 {% endblock %}
