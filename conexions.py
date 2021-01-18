@@ -12,6 +12,9 @@ model = ModeloDesp()
 
 
 def on_file_upload(json_array, file_type):
+    global despo_samples
+    global nodespo_samples
+    print(despo_samples)
     if file_type == 'despo':
         despo_samples = json_array
     else:
@@ -19,8 +22,7 @@ def on_file_upload(json_array, file_type):
 
 
 def get_file_content(file_name, file_type):
-    global despo_samples
-    global nodespo_samples
+
     if file_type == 'despo':
         for file in despo_samples:
             if file['name'] == file_name:
