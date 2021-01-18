@@ -32,7 +32,7 @@ class ModeloDesp:
         self.y = None
         self.test = None
 
-    def cargarTextosTrainingDespo(self, files_json, category):
+    def cargarTextosTraining(self, files_json, category):
         new_df = pd.read_json(files_json)
         new_df.drop('type', 'lastModified', 'lastModifiedDate', 'size')
         new_df['categoria'] = category
