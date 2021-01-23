@@ -1,48 +1,54 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<div class="jumbotron text-center" style="height: 7%;">
-    <h1 style="margin-top: -0.7em;">Clasificador de Texto</h1> 
-</div>
 
-<div class="row justify-content-around">
-    <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
-        <button class="btn btn-info" onclick="document.getElementById('despo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
-            <span>Despoblación</span>
-        </button>    <input id="despo-input" onChange="samplesSelect('despo')" type="file" style="display: none;" webkitdirectory directory multiple/>
-        <button id="despo-drop" type="button" class="col-1 btn btn-info btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #33b5e5 !important;">
-            <span id="despo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-        </button>
-        <div class="dropdown-menu" id="despo-samples" style="overflow-y: scroll; max-height: 25vh;">
-            <button class="dropdown-item border-top border-info disabled">
-                No se han cargado archivos.
-            </button>
-        </div>
+<section style="display: flex; flex-direction: column; min-height: 94vh;">
+    <div class="jumbotron text-center" style="height: 7%;">
+        <h1 style="margin-top: -0.7em;">Clasificador de Texto</h1> 
     </div>
-    <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
-        <button class="btn btn-warning justify-content-around" onclick="document.getElementById('nodespo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
-            <span>No_Despoblación</span>
-        </button>    <input id="nodespo-input" onChange="samplesSelect('nodespo')" type="file" style="display: none;" webkitdirectory directory multiple/>
-        <button id="nodespo-drop" type="button" class="col-1 btn btn-warning btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #ffbb33 !important;">
-            <span id="nodespo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-        </button>
-        <div class="dropdown-menu" id="nodespo-samples" style="overflow-y: scroll; max-height: 25vh">
-            <button class="dropdown-item border-top border-info disabled">
-                No se han cargado archivos.
-            </button>
-        </div>
-    </div>
-</div>
 
-<div class="row border-bottom border-warning">
-    <div class="d-flex justify-content-around" style="margin-bottom: 1vh;">
-        <div class="card" style="margin-top: 3%;">
-            <div class="card-header" style="height: 45px;">
-                <button class="btn btn-link" data-toggle="collapse" href="#collapse1" style="margin-top: -3%;">
-                    <p style="font-size: 1.1rem;">Opciones de Preprocesamiento</p>
+    <!-- File upload -->
+    <div class="row justify-content-around">
+        <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
+            <button class="btn btn-info" onclick="document.getElementById('despo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
+                <span>Despoblación</span>
+            </button>    <input id="despo-input" onChange="samplesSelect('despo')" type="file" style="display: none;" webkitdirectory directory multiple/>
+            <button id="despo-drop" type="button" class="col-1 btn btn-info btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #33b5e5 !important;">
+                <span id="despo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+            </button>
+            <div class="dropdown-menu" id="despo-samples" style="overflow-y: scroll; max-height: 25vh;">
+                <button class="dropdown-item border-top border-info disabled">
+                    No se han cargado archivos.
                 </button>
             </div>
-            <div id="collapse1" class="card-body collapse">
+        </div>
+        <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
+            <button class="btn btn-warning " onclick="document.getElementById('nodespo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
+                <span>No_Despoblación</span>
+            </button>    <input id="nodespo-input" onChange="samplesSelect('nodespo')" type="file" style="display: none;" webkitdirectory directory multiple/>
+            <button id="nodespo-drop" type="button" class="col-1 btn btn-warning btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #ffbb33 !important;">
+                <span id="nodespo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+            </button>
+            <div class="dropdown-menu" id="nodespo-samples" style="overflow-y: scroll; max-height: 25vh">
+                <button class="dropdown-item border-top border-info disabled">
+                    No se han cargado archivos.
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="row border-bottom border-warning">
+        <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
+            <button class="btn btn-primary" onclick="toggleSettingsPanel(true)" style="width: 50%;">
+                Pre- Procesado
+            </button>
+            <button class="btn btn-primary" onclick="toggleSettingsPanel(false)" style="width: 50%;">
+                Ajustes Clasificador
+            </button>
+        </div>
+        <div class="collapse" id="preprocess-collapse">
+            <div class="card card-body">
                 <div class="row border-bottom border-info">
                     <p style="margin-left: 10%;">Uso de Stopwords: </p> 
                     <input style="margin-left: 70%; margin-top: 3%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio1" value="option1">
@@ -61,24 +67,49 @@
                 </div>
             </div>
         </div>
+        <div class="collapse" id="classifier-collapse">
+            <div class="card card-body">
+                Cargar tu clasificador o algo así.
+            </div>
+        </div>
     </div>
-</div>
+    
+    <!-- Text areas-->
+    <!-- TODO: flex-direction toggler -->
+    <div class="row" style="margin-top: 2vh; flex: 1; display: flex; justify-content: center; flex-direction: column;">
+        <div class="col" style="flex: 1; display: flex; justify-content: center; flex-direction: column;">
+            <!-- Matches Text-Area -->
+            <label for="matches-tabContent">Texto original: </label>
+            <textarea id="text-area" class="form-control" style="flex: 1; display: flex; justify-content: center; flex-direction: column;" readonly>Carga los textos </textarea>
+        </div>
+        <div class="col" style="flex: 1; display: flex; justify-content: center; flex-direction: column;">
+            <!-- Matches Text-Area -->
+            <label for="matches-tabContent">Texto procesado: </label>
+            <textarea id="corpus-area" class="form-control" style="flex: 1; display: flex; justify-content: center; flex-direction: column;" readonly>Carga los textos </textarea>
+        </div>
+    </div>
+</section>
 
-<div class="row" style="margin-top: 2vh; ">
-    <div class="col">
-        <!-- Matches Text-Area -->
-        <label for="matches-tabContent">Texto original: </label>
-        <textarea id="text-area" class="form-control" style="height: 54vh;" readonly>Carga los textos </textarea>
-    </div>
-    <div class="col">
-        <!-- Matches Text-Area -->
-        <label for="matches-tabContent">Texto procesado: </label>
-        <textarea id="corpus-area" class="form-control" style="height: 54vh;" readonly>Carga los textos </textarea>
-    </div>
-</div>
+<section class="row" style="margin-top: 3rem; background-color: #212121; height: 70vh;">
+    
+</section>
 
 <script>
-    var slider = new Slider("#prune-range", {
+    /*** Settings panel toggler. ***/
+    function toggleSettingsPanel(panel_one) {
+        if (panel_one) {
+            $('#preprocess-collapse').collapse('toggle');
+            $('#classifier-collapse').collapse('hide'  );
+        } else {
+            $('#classifier-collapse').collapse('toggle');
+            $('#preprocess-collapse').collapse('hide'  );
+        }
+    }
+</script>
+
+<script>
+    /*** Prune slider instantiation. ***/
+    let slider = new Slider("#prune-range", {
         precision: 1,
         value: 20   // Slider will instantiate showing 20 due to specified precision
     });
