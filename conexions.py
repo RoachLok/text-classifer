@@ -26,11 +26,14 @@ def on_file_upload(json_array, file_type):
         despo_samples = json_array
         despo_set = model.cargarTextosTraining(json_array, "Despoblacion")
         corpus_desp = model.preprocesarTextos(despo_set)
+        # return corpus_desp
+
     else:
         nodespo_set = None
         nodespo_samples = json_array
         nodespo_set = model.cargarTextosTraining(json_array, "No Despoblacion")
         corpus_nodespo = model.preprocesarTextos(nodespo_set)
+        # return corpus_nodespo
 
 
 def get_full_corpus():
@@ -39,16 +42,22 @@ def get_full_corpus():
     # Esto hacerlo de cualquiera de las maneras, pero luego siempre juntarlo para hacer el count_vectorizer (que siempre tiene que ser de todos los textos)
 
 
+'''
+cm, accuracy = model.model_training(
+    "auto", pd.concat(despo_set, nodespo_set), corpus_dataset, 0.06)
+'''
+
+
 def get_file_content(file_name, file_type):
 
     if file_type == 'despo':
-        for index, file in enumerate(despo_samples):
+        for file in despo_samples:
             if file['name'] == file_name:
-                return [file['content'], corpus_desp[index]]
+                return file['content']
     else:
-        for index, file in enumerate(nodespo_samples):
+        for file in nodespo_samples:
             if file['name'] == file_name:
-                return [file['content'], corpus_nodespo[index]]
+                return file['content']
 
 
 # Filename required to save the file
