@@ -14,7 +14,7 @@ from nltk.probability import FreqDist
 from pickle import dump
 from pickle import load
 
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
 
 from sklearn.linear_model import LogisticRegression
@@ -83,8 +83,6 @@ class ModeloDesp:
             return LinearDiscriminantAnalysis()
         elif modelName == "KNN":
             return KNeighborsClassifier()
-        elif modelName == "NB":
-            return GaussianNB()
         elif modelName == "SVC":
             return SVC()
         elif modelName == "RF":
@@ -92,8 +90,11 @@ class ModeloDesp:
         elif modelName == "ANN":
             return MLPClassifier()
 
-    def model_training(self, modelName, dataset, corpus, min_dif=None):
-        self.count_vectorizer = CountVectorizer(min_df=min_dif)
+    def model_training(self, modelName, dataset, corpus, vector_transform, min_dif=None):
+        if (vector_transform == "cv"):
+            self.count_vectorizer = CountVectorizer(min_df=min_dif)
+        elif(vector_transform == "tfid"):
+            self.count_vectorizer = TfidfVectorizer(min_df=min_dif)
         self.X = self.count_vectorizer.fit_transform(
             corpus).toarray()
         self.y = self.dataset['categoria'].values  # Dependent variable
@@ -104,7 +105,7 @@ class ModeloDesp:
             models = []
             models.append(('LR', LogisticRegression()))
             models.append(('LDA', LinearDiscriminantAnalysis()))
-            models.append(('NB', GaussianNB()))
+            models.append(('KNN', KNeighborsClassifier()))
             models.append(('SVM', SVC()))
             models.append(('RF', RandomForestClassifier()))
             models.append(('ANN', MLPClassifier()))
@@ -165,10 +166,6 @@ class ModeloDesp:
         elif type(self.selectedModel).__name__ == 'KNeighborsClassifier':
             parameters = [{'n_neighbors': np.arange(1, 31, 1), 'weights': [
                 'uniform', 'distance']}]
-        elif type(self.selectedModel).__name__ == 'GaussianNB':
-            # Eliminar o cambiar
-            # parameters =
-            pass
         elif type(self.selectedModel).__name__ == 'SVC':
             parameters = [{'C': np.arange(0.1, 1.1, 0.1).tolist(), 'kernel': [
                 'linear', 'poly', 'rbf', 'sigmoid'], 'gamma':['scale', 'auto']}]
