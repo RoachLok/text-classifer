@@ -26,14 +26,11 @@ def on_file_upload(json_array, file_type):
         despo_samples = json_array
         despo_set = model.cargarTextosTraining(json_array, "Despoblacion")
         corpus_desp = model.preprocesarTextos(despo_set)
-        # return corpus_desp
-
     else:
         nodespo_set = None
         nodespo_samples = json_array
         nodespo_set = model.cargarTextosTraining(json_array, "No Despoblacion")
         corpus_nodespo = model.preprocesarTextos(nodespo_set)
-        # return corpus_nodespo
 
 
 def get_full_corpus():
@@ -45,13 +42,13 @@ def get_full_corpus():
 def get_file_content(file_name, file_type):
 
     if file_type == 'despo':
-        for file in despo_samples:
+        for index, file in enumerate(despo_samples):
             if file['name'] == file_name:
-                return file['content']
+                return [file['content'], corpus_desp[index]]
     else:
-        for file in nodespo_samples:
+        for index, file in enumerate(nodespo_samples):
             if file['name'] == file_name:
-                return file['content']
+                return [file['content'], corpus_nodespo[index]]
 
 
 # Filename required to save the file

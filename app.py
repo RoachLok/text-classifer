@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from conexions import *
 
 app = Flask(__name__)
@@ -19,7 +19,7 @@ def get_train_file(file_type):
         return render_template('_dropdowns.html', file_names = json_array, file_type = file_type)
 
     file_attri = file_type.split('-', 1)
-    return get_file_content(file_attri[1], file_attri[0])
+    return jsonify(get_file_content(file_attri[1], file_attri[0]))
 
 @app.route('/')
 def index():

@@ -47,7 +47,7 @@ class ModeloDesp:
         return train_set
 
     def cargarTextosTest(self, json_files_test):
-        test_set = pd.json_normalize(json_files_train)
+        test_set = pd.json_normalize(json_files_test)
         test_set = test_set.filter(items=['content'])
         test_set = test_set.rename(columns={"content": "noticia"})
         return test_set

@@ -35,7 +35,6 @@
 </div>
 
 <div class="row border-bottom border-warning">
-
     <div class="d-flex justify-content-around" style="margin-bottom: 1vh;">
         <div class="card" style="margin-top: 3%;">
             <div class="card-header" style="height: 45px;">
@@ -66,9 +65,16 @@
 </div>
 
 <div class="row" style="margin-top: 2vh; ">
-    <!-- Matches Text-Area -->
-    <label for="matches-tabContent">Textos cargados: </label>
-    <textarea id="text-area" class="form-control" style="height: 61vh;" readonly>Carga los textos </textarea>
+    <div class="col">
+        <!-- Matches Text-Area -->
+        <label for="matches-tabContent">Texto original: </label>
+        <textarea id="text-area" class="form-control" style="height: 54vh;" readonly>Carga los textos </textarea>
+    </div>
+    <div class="col">
+        <!-- Matches Text-Area -->
+        <label for="matches-tabContent">Texto procesado: </label>
+        <textarea id="corpus-area" class="form-control" style="height: 54vh;" readonly>Carga los textos </textarea>
+    </div>
 </div>
 
 <script>
@@ -87,8 +93,12 @@
         request.open('GET', './get_train_files/'+fileId, true);
 
         request.onload = function () {  // Process response somehow // A json can also be retrieved. 
-            const text_container = document.getElementById('text-area');
-            text_container.value = this.response;
+            parsed_json = JSON.parse(this.response);
+            const text_container    = document.getElementById('text-area'  );
+            const corpus_container  = document.getElementById('corpus-area');
+
+            text_container  .value = parsed_json[0];
+            corpus_container.value = parsed_json[1];
         }
 
         // Send request
