@@ -1,6 +1,7 @@
 # Importing the libraries
 import numpy as np
 import matplotlib.pyplot as plt
+import io
 import pandas as pd
 import os
 import re
@@ -97,7 +98,7 @@ class ModeloDesp:
             self.count_vectorizer = TfidfVectorizer(min_df=min_dif)
         self.X = self.count_vectorizer.fit_transform(
             corpus).toarray()
-        self.y = self.dataset['categoria'].values  # Dependent variable
+        self.y = dataset['categoria'].values  # Dependent variable
         X_train, X_test, y_train, y_test = train_test_split(
             self.X, self.y, test_size=0.2, random_state=42)
         if modelName == "AUTO":
@@ -134,9 +135,10 @@ class ModeloDesp:
             ax = fig.add_subplot(111)
             plt.boxplot(results)
             ax.set_xticklabels(names)
-            plt.show()
+            img = io.BytesIO()
+            plt.savefig(img)
 
-            return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred), plt
+            return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred), img
 
         else:
             self.selectedModel = self.model_name_selection(modelName)
