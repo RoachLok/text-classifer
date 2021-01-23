@@ -6,7 +6,6 @@ from tkinter import filedialog
 from tkinter import *
 from modelo_noticias_despoblacion import ModeloDesp
 
-
 despo_samples = []
 nodespo_samples = []
 model = ModeloDesp()
@@ -41,26 +40,24 @@ def get_full_corpus():
     corpus_dataset = corpus_desp + corpus_nodespo
     # Esto hacerlo de cualquiera de las maneras, pero luego siempre juntarlo para hacer el count_vectorizer (que siempre tiene que ser de todos los textos)
 
-
 '''
 cm, accuracy = model.model_training(
     "auto", pd.concat(despo_set, nodespo_set), corpus_dataset, 0.06)
 '''
 
-
 def get_file_content(file_name, file_type):
 
     if file_type == 'despo':
-        for file in despo_samples:
+        for index, file in enumerate(despo_samples):
             if file['name'] == file_name:
-                return file['content']
+                return [file['content'], corpus_desp[index]]
     else:
-        for file in nodespo_samples:
+        for index, file in enumerate(nodespo_samples):
             if file['name'] == file_name:
-                return file['content']
+                return [file['content'], corpus_nodespo[index]]
 
 
-# Filename required to save the file
+# Filename required to save the filegok
 def train_model(stopwords, prune):
     prune = prune / 100
     model.model_training(model.dataset, prune, stopwords)
