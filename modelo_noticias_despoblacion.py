@@ -33,12 +33,10 @@ from sklearn.model_selection import GridSearchCV
 
 class ModeloDesp:
     def __init__(self):
-        self.test_set = None
-        self.count_vectorizer = None
+        self.vectorizer = None
         self.selectedModel = None
         self.X = None
         self.y = None
-        self.test = None
 
     def cargarTextosTraining(self, json_files_train, categoria):
         train_set = pd.json_normalize(json_files_train)
@@ -63,7 +61,6 @@ class ModeloDesp:
             text = text.lower()
             text = text.split()  # Tercera limpieza = dividir los textos en sus diferentes palabras para que podamos aplicar lematizacion/stemming a cada palabra
             # Cuarta limpieza
-            # ps = PorterStemmer()
             sst = SnowballStemmer('spanish')
             all_stopwords = stopwords.words('spanish')
             if stopwords_setting:
@@ -93,16 +90,15 @@ class ModeloDesp:
 
     def model_training(self, modelName, dataset, corpus, vector_transform, min_dif=None):
         if (vector_transform == "cv"):
-            self.count_vectorizer = CountVectorizer(min_df=min_dif)
+            self.vectorizer = CountVectorizer(min_df=min_dif)
         elif(vector_transform == "tfid"):
-            self.count_vectorizer = TfidfVectorizer(min_df=min_dif)
-        self.X = self.count_vectorizer.fit_transform(
+            self.vectorizer = TfidfVectorizer(min_df=min_dif)
+        self.X = self.vectorizer.fit_transform(
             corpus).toarray()
         self.y = dataset['categoria'].values  # Dependent variable
         X_train, X_test, y_train, y_test = train_test_split(
             self.X, self.y, test_size=0.2, random_state=42)
         if modelName == "AUTO":
-            # print("Auto model selection")
             models = []
             models.append(('LR', LogisticRegression()))
             models.append(('LDA', LinearDiscriminantAnalysis()))
@@ -119,11 +115,9 @@ class ModeloDesp:
                 results.append(cv_results)
                 names.append(name)
                 msg = f"{name}: {cv_results.mean()} ({cv_results.std()})"
-                # print(msg)
 
             best_model = dict(
                 zip(names, [np.average(result) for result in results]))
-            # print(max(best_model, key=best_model.get))
             self.selectedModel = [y for x, y in models if x == max(
                 best_model, key=best_model.get)][0]
             self.selectedModel = self.selectedModel.fit(X_train, y_train)
@@ -144,20 +138,12 @@ class ModeloDesp:
             self.selectedModel = self.model_name_selection(modelName)
             cv_results = cross_val_score(
                 self.selectedModel, X_train, y_train, cv=10, scoring="accuracy")
-            # print(f"{modelName}: {cv_results.mean()} ({cv_results.std()})")
             self.selectedModel.fit(X_train, y_train)
             y_pred = self.selectedModel.predict(X_test)
 
             return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred)
 
-        '''
-        print(accuracy_score(y_test, y_pred))
-        print(confusion_matrix(y_test, y_pred))
-        print(classification_report(y_test, y_pred))
-        '''
-
     def model_self_tuning(self):
-        # print("Parameter tuning")
         parameters = []
         if type(self.selectedModel).__name__ == 'LogisticRegression':
             parameters = [{'C': np.arange(0.1, 1.1, 0.1).tolist()}, {'penalty': [
@@ -178,7 +164,6 @@ class ModeloDesp:
             parameters = [{'hidden_layer_sizes': [(50, 50), (100, 100, 100), (400, 100, 50, 10)], 'batch_size':[
                 16, 32, 64], 'learning_rate':['adaptive'], 'max_iter':[50, 100, 300]}]
 
-        # print(parameters)
         X_train, X_test, y_train, y_test = train_test_split(
             self.X, self.y, test_size=0.2, random_state=42)
         grid_search = GridSearchCV(estimator=self.selectedModel,
@@ -187,58 +172,25 @@ class ModeloDesp:
                                    cv=10,
                                    n_jobs=-1)
         grid_search.fit(X_train, y_train)
-        # print("Best: %f using %s" % (grid_search.best_score_, grid_search.best_params_))
         self.selectedModel = grid_search.best_estimator_
         self.selectedModel.fit(X_train, y_train)
         y_pred = self.selectedModel.predict(X_test)
-
-        '''
-        print(accuracy_score(y_test, y_pred))
-        print(confusion_matrix(y_test, y_pred))
-        print(classification_report(y_test, y_pred))
-        '''
         return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred)
 
-    def model_testing(self):
-        self.test = self.count_vectorizer.transform(
-            self.preprocesarTextos(self.test_set)).toarray()
-        y_pred = self.selectedModel.predict(self.test)
-        y_pred_proba = self.selectedModel.predict_proba(self.test)
+    def model_testing(self, corpus_test):
+        test = self.vectorizer.transform(corpus_test).toarray()
+        y_pred = self.selectedModel.predict(test)
+        y_pred_proba = self.selectedModel.predict_proba(test)
         y_pred_proba = np.matrix.round(y_pred_proba, 3)
-        '''
-        print(y_pred)
-        print(y_pred_proba)
-        '''
         return y_pred, y_pred_proba
 
     def save_model(self, filename):
         # save the model to disk
         # filename = 'finalized_model.sav'
-        bow_model_save = (self.count_vectorizer, self.selectedModel)
+        bow_model_save = (self.vectorizer, self.selectedModel)
         dump(bow_model_save, open(filename, 'wb'))
 
     def load_model(self, filename):
         # load the model from disk
         bow_model_save = load(open(filename, 'rb'))
-        self.count_vectorizer, self.selectedModel = bow_model_save
-
-
-'''
-La clase esta para pruebas. O mantenerla y crear un objeto externo;
-o generar una clase externa que llame a los metodos y pueda mantener las variables en memoria.
-'''
-'''
-prueba = ModeloDesp()
-
-prueba.cargarTextosTraining("data/Noticias/Despoblacion/")
-prueba.cargarTextosTraining("data/Noticias/No Despoblacion/")
-prueba.model_training(modelName="AUTO", min_dif=0.06, stopwords_setting=False)
-prueba.model_self_tuning()
-prueba.save_model("finalized_model.sav")
-'''
-'''
-prueba.load_model("finalized_model.sav")
-prueba.cargarTextosTest("data/unlabel/unlabel-1/")
-prueba.cargarTextosTest("data/unlabel/unlabel-2/")
-prueba.model_testing()
-'''
+        self.vectorizer, self.selectedModel = bow_model_save

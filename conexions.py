@@ -6,34 +6,39 @@ from modelo_noticias_despoblacion import ModeloDesp
 
 despo_samples = []
 nodespo_samples = []
+unlabeled_samples = []
 model = ModeloDesp()
 despo_set = None
 nodespo_set = None
 dataset = None
 corpus_desp = []
 corpus_nodespo = []
+corpus_unlabeled = []
 corpus_dataset = []
 
 
 def on_file_upload(json_array, file_type, stopwords=True):
     global despo_samples
     global nodespo_samples
+    global unlabeled_samples
     global despo_set
     global nodespo_set
     global corpus_desp
     global corpus_nodespo
+    global corpus_unlabeled
 
     if file_type == 'despo':
-        despo_set = None
         despo_samples = json_array
         despo_set = model.cargarTextosTraining(json_array, "Despoblacion")
         corpus_desp = model.preprocesarTextos(despo_set, stopwords)
-
-    else:
-        nodespo_set = None
+    elif file_type == 'nodespo':
         nodespo_samples = json_array
         nodespo_set = model.cargarTextosTraining(json_array, "No Despoblacion")
         corpus_nodespo = model.preprocesarTextos(nodespo_set, stopwords)
+    else:
+        unlabeled_samples = json_array
+        unlabeled_set = model.cargarTextosTest(json_array)
+        corpus_unlabeled = model.preprocesarTextos(unlabeled_set, stopwords)
 
 
 def get_full_dataset():
@@ -57,10 +62,14 @@ def get_file_content(file_name, file_type):
         for index, file in enumerate(despo_samples):
             if file['name'] == file_name:
                 return [file['content'], corpus_desp[index]]
-    else:
+    elif file_type == 'nodespo':
         for index, file in enumerate(nodespo_samples):
             if file['name'] == file_name:
                 return [file['content'], corpus_nodespo[index]]
+    else:
+        for index, file in enumerate(unlabeled_samples):
+            if file['name'] == file_name:
+                return [file['content'], corpus_unlabeled[index]]
 
 
 def train_model(modelName="AUTO", vector_transform="cv", prune=10):
@@ -75,3 +84,19 @@ def train_model(modelName="AUTO", vector_transform="cv", prune=10):
         cm, accuracy = model.model_training(
             modelName, dataset, corpus_dataset, vector_transform, prune)
         return cm, accuracy
+
+
+def save_model_cv(savepath):
+    model.save_model(savepath)
+
+
+def load_model_cv(savepath):
+    model.load_model(savepath)
+
+
+def tune_model():
+    cm, accuracy = model.model_self_tuning()
+
+
+def test_model():
+    y_pred, y_pred_proba = model.model_testing(corpus_unlabeled)
