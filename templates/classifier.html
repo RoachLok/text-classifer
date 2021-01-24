@@ -4,14 +4,15 @@
 
 <section style="display: flex; flex-direction: column; min-height: 94vh;">
     <div class="jumbotron text-center" style="height: 7%;">
-        <h1 style="margin-top: -0.7em;">Clasificador de Texto</h1> 
+        <h1 style="margin-top: -0.7em;">Clasificador de Noticias</h1> 
     </div>
 
     <!-- File upload -->
     <div class="row justify-content-around">
         <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
             <button class="btn btn-info" onclick="document.getElementById('despo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
-                <span>Despoblación</span>
+                <i class="fas fa-upload" style="margin-right: 0.5rem;"  ></i>
+                Despoblación
             </button>    <input id="despo-input" onChange="samplesSelect('despo')" type="file" style="display: none;" webkitdirectory directory multiple/>
             <button id="despo-drop" type="button" class="col-1 btn btn-info btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #33b5e5 !important;">
                 <span id="despo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
@@ -24,7 +25,8 @@
         </div>
         <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
             <button class="btn btn-warning " onclick="document.getElementById('nodespo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
-                <span>No_Despoblación</span>
+                <i class="fas fa-upload" style="margin-right: 0.5rem;"></i>
+                No_Despoblación
             </button>    <input id="nodespo-input" onChange="samplesSelect('nodespo')" type="file" style="display: none;" webkitdirectory directory multiple/>
             <button id="nodespo-drop" type="button" class="col-1 btn btn-warning btn-outline-grey dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 0.5vw; background-color: #ffbb33 !important;">
                 <span id="nodespo-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
@@ -40,51 +42,104 @@
     <!-- Settings -->
     <div class="row border-bottom border-warning">
         <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
-            <button class="btn btn-primary" onclick="toggleSettingsPanel(true)" style="width: 50%;">
-                Pre- Procesado
+            <button class="btn btn-primary btn-outline-light" onclick="toggleSettingsPanel('preprocess')" style="width: 50%; background-color: #4285f4 !important; min-width: 171px;">
+                Ajustes de Preprocesado
             </button>
-            <button class="btn btn-primary" onclick="toggleSettingsPanel(false)" style="width: 50%;">
-                Ajustes Clasificador
-            </button>
+            <div class="btn-group" style="width: 50%; min-width: 250px;">
+                <button class="btn btn-primary btn-outline-light" onclick="toggleSettingsPanel('classifier')" style="width: 90%; background-color: #4285f4 !important; min-width: 162px;">
+                    Ajustes de Clasificador
+                </button>
+                <button class="btn btn-unique btn-outline-light" style="width: 10%; background-color: #880e4f !important;" title="Upload Trained Model">
+                    <i class="fas fa-file-import"></i>
+                </button>
+            </div>
         </div>
         <div class="collapse" id="preprocess-collapse">
-            <div class="card card-body">
-                <div class="row border-bottom border-info">
-                    <p style="margin-left: 10%;">Uso de Stopwords: </p> 
-                    <input style="margin-left: 70%; margin-top: 3%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+            <div class="card card-body ml-1">
+                <h4 class="card-title">Opciones de preprocesado: </h4>
+                <div class="form-check form-switch">
+                    <label class="form-check-label card-text" for="stopwords-check">
+                        <li> Uso de stopwords: </li>
+                    </label>
+                    <input class="form-check-input" type="checkbox" id="stopwords-check" checked style="margin-left: 15px;"/>
                 </div>
-                <div class="row border-top border-bottom border-info">
-                    <div class="col">
-                        <p style="margin-top: 10%; margin-left: 1%;">Poda:</p> 
-                    </div>
-                    <div class="col" style="margin-top: 3%;">
-                        <input id="prune-range" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" style="width: 10vw;"/>
-                    </div>
-                </div>
-                <div class="row border-top border-info">
-                    <p style="margin-left: 10%; margin-top: 5%;">Auto-Ajuste: </p> 
-                    <input style="margin-left: 70%; margin-top: 7%" class="form-check-input " type="checkbox" name="inlineRadioOptions" id="inlineRadio2" value="option1">
+                <div class="card-text" style="font-weight: 100; opacity: 70%; margin-top: 0.75rem;">
+                    La opción de uso de stopwords no se aplica a los textos ya preprocesados.
                 </div>
             </div>
         </div>
         <div class="collapse" id="classifier-collapse">
-            <div class="card card-body">
-                Cargar tu clasificador o algo así.
+            <div class="card card-body ml-1">
+                <h4 class="card-title">Opciones de Entrenamiento: </h4>
+                <div class="row">
+                    <div class="col" style=" min-width: 400px;">
+                        <div class="row justify-content-start" style="padding-left: 1.25rem; padding-top: 0.25rem;">
+                            <div class="col-5">
+                                <label class="form-check-label card-text" for="transform-select" style="padding-top: 0.5rem;">Vector Transform: </label>
+                            </div>
+                            <div class="col-6">
+                                <select id="transform-select" class="form-select" aria-label="Transform Selector">
+                                    <option value="cv" selected>Count Vectorizer </option>
+                                    <option value="tfidf">TF - IDF </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-start" style="padding-left: 1.25rem; padding-top: 1rem; padding-bottom: 1rem; background-color: aliceblue;">
+                            <div class="col-5">
+                                <label class="form-check-label card-text" for="stopwords-check">Porcentaje de Poda: </label>
+                            </div>
+                            <div class="col-6">
+                                <input id="prune-range" data-slider-id="prune-slider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" style="width: 100%"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col" style="margin-top: -10; min-width: 400px; padding-left: 1.25rem; padding-top: 1rem;">
+                        <label class="col-5" for="model-select">Tipo de Modelo:</label>
+                        <select id="model-select" class="form-select" aria-label="Model Selector">
+                            <option value="LR" selected>Logistic Regression  </option>
+                            <option value="LDA">Linear Discriminant Analysis </option>
+                            <option value="KNN">KNeighbors Classifier        </option>
+                            <option value="SVC">Support-Vector Machine       </option>
+                            <option value="RF" >Random Forest Classifier     </option>  
+                            <option value="ANN">MLP Classifier               </option>
+                        </select>
+                    </div>                        
+                </div>
+                
+                <div class="flex-row" style="margin-top: 1rem;">
+                    <button class="btn btn-success" onclick="toggleSettingsPanel('disable')" style="width: 145px;">
+                        <i class="fas fa-bolt pr-2" aria-hidden="true"></i> Train
+                    </button>
+                    <button type="button" class="btn btn-unique" title="Upload Trained Model">
+                        <i class="fas fa-file-import pr-2" aria-hidden="true"></i> Upload
+                    </button>
+                </div>
             </div>
         </div>
     </div>
     
     <!-- Text areas-->
     <!-- TODO: flex-direction toggler -->
-    <div class="row" style="margin-top: 2vh; flex: 1; display: flex; justify-content: center; flex-direction: column;">
+    <div class="row" style=" flex: 1; display: flex; justify-content: center; flex-direction: column;">
         <div class="col" style="flex: 1; display: flex; justify-content: center; flex-direction: column;">
             <!-- Matches Text-Area -->
-            <label for="matches-tabContent">Texto original: </label>
+            <div class="d-flex justify-content-between" style="margin-bottom: 0.25rem;">
+                <span style="margin-top: 1.4rem;">
+                    Texto original:
+                </span> 
+                <div class="d-flex justify-content-end">
+                    <button class="btn" onclick="flexDirectionToggle()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
             <textarea id="text-area" class="form-control" style="flex: 1; display: flex; justify-content: center; flex-direction: column;" readonly>Carga los textos </textarea>
         </div>
-        <div class="col" style="flex: 1; display: flex; justify-content: center; flex-direction: column;">
+        <div class="col" style="flex: 1; display: flex; justify-content: center; flex-direction: column; margin-top: 0.5rem;">
             <!-- Matches Text-Area -->
-            <label for="matches-tabContent">Texto procesado: </label>
+            <label for="corpus-area">Texto preprocesado: </label>
             <textarea id="corpus-area" class="form-control" style="flex: 1; display: flex; justify-content: center; flex-direction: column;" readonly>Carga los textos </textarea>
         </div>
     </div>
@@ -95,14 +150,26 @@
 </section>
 
 <script>
-    /*** Settings panel toggler. ***/
-    function toggleSettingsPanel(panel_one) {
-        if (panel_one) {
-            $('#preprocess-collapse').collapse('toggle');
-            $('#classifier-collapse').collapse('hide'  );
-        } else {
-            $('#classifier-collapse').collapse('toggle');
-            $('#preprocess-collapse').collapse('hide'  );
+    function flexDirectionToggle() {
+
+    }
+</script>
+
+<script>
+    /*** Settings panel toggler. ***/ // TODO: Make separate one for train button.
+    function toggleSettingsPanel(action_click) {
+        switch (action_click) {
+            case 'preprocess':
+                $('#preprocess-collapse').collapse('toggle');
+                $('#classifier-collapse').collapse('hide'  );
+                break;
+            case 'classifier':
+                $('#classifier-collapse').collapse('toggle');
+                $('#preprocess-collapse').collapse('hide'  );
+                break;
+            default:
+                $('#classifier-collapse').collapse('hide'  );
+                $('#preprocess-collapse').collapse('hide'  );
         }
     }
 </script>
@@ -114,6 +181,14 @@
         value: 20   // Slider will instantiate showing 20 due to specified precision
     });
 </script>
+<style>   
+    #prune-slider .slider-selection {
+        background: #4285f4;
+    }
+    #prune-slider .slider-track-high {
+        background: #BABABA;
+    }
+</style>
 
 <script>
     function getFileText(fileId) {
