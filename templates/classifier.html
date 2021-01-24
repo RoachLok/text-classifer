@@ -109,9 +109,9 @@
                 </div>
                 
                 <div class="flex-row" style="margin-top: 1rem;">
-                    <button class="btn btn-success" onclick="toggleSettingsPanel('disable')" style="width: 145px;">
+                    <a class="btn btn-success" href="#results-section" onclick="toggleSettingsPanel('disable')" style="width: 145px;">
                         <i class="fas fa-bolt pr-2" aria-hidden="true"></i> Train
-                    </button>
+                    </a>
                     <button type="button" class="btn btn-unique" title="Upload Trained Model">
                         <i class="fas fa-file-import pr-2" aria-hidden="true"></i> Upload
                     </button>
@@ -121,37 +121,48 @@
     </div>
     
     <!-- Text areas-->
-    <!-- TODO: flex-direction toggler -->
-    <div class="row" style=" flex: 1; display: flex; justify-content: center; flex-direction: column;">
+    <div id="texts-container" class="row" style=" flex: 1; display: flex; justify-content: center; flex-direction: column;">
         <div class="col" style="flex: 1; display: flex; justify-content: center; flex-direction: column;">
-            <!-- Matches Text-Area -->
+            <!-- Original text -->
             <div class="d-flex justify-content-between" style="margin-bottom: 0.25rem;">
                 <span style="margin-top: 1.4rem;">
                     Texto original:
                 </span> 
                 <div class="d-flex justify-content-end">
                     <button class="btn" onclick="flexDirectionToggle()">
-                        <i class="fas fa-bars"></i>
+                        <i id="flex-toggler-icon" class="fas fa-bars to-cols-animation"></i>
                     </button>
                 </div>
             </div>
             <textarea id="text-area" class="form-control" style="flex: 1; display: flex; justify-content: center; flex-direction: column;" readonly>Carga los textos </textarea>
         </div>
         <div class="col" style="flex: 1; display: flex; justify-content: center; flex-direction: column; margin-top: 0.5rem;">
-            <!-- Matches Text-Area -->
-            <label for="corpus-area">Texto preprocesado: </label>
+            <!-- Preprocessed text -->
+            <label id="pre-label" for="corpus-area">Texto preprocesado: </label>
             <textarea id="corpus-area" class="form-control" style="flex: 1; display: flex; justify-content: center; flex-direction: column;" readonly>Carga los textos </textarea>
         </div>
     </div>
 </section>
 
-<section class="row" style="margin-top: 3rem; background-color: #212121; height: 70vh;">
+<section id="results-section" class="row" style="margin-top: 3rem; background-color: #212121; height: 70vh;">
     
 </section>
 
 <script>
     function flexDirectionToggle() {
+        let icon      = document.getElementById('flex-toggler-icon');
+        let container = document.getElementById('texts-container'  ); 
+        let pre_label = document.getElementById('pre-label'        );
 
+        if (icon.classList.contains('to-rows-animation')) {
+            icon.classList.remove('to-rows-animation');
+            container.style.flexDirection = 'column';
+            pre_label.style.marginTop = '0rem';
+        } else {
+            icon.classList.add('to-rows-animation');
+            container.style.flexDirection = 'row-reverse';
+            pre_label.style.marginTop = '1rem';
+        }
     }
 </script>
 
@@ -187,6 +198,15 @@
     }
     #prune-slider .slider-track-high {
         background: #BABABA;
+    }
+    /* Animate flex direction toggler */
+    .to-cols-animation {
+        transform: rotate(0deg);
+        transition: transform 0.5s linear;
+    }
+    .to-rows-animation {
+        transform: rotate(90deg);
+        transition: transform 0.5s linear;
     }
 </style>
 
