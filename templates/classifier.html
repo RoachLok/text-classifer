@@ -49,7 +49,7 @@
                 <button class="btn btn-primary btn-outline-light" onclick="toggleSettingsPanel(false)" style="width: 90%; background-color: #4285f4 !important; min-width: 162px;">
                     Ajustes de Clasificador
                 </button>
-                <button class="btn btn-unique btn-outline-light" style="width: 10%; background-color: #880e4f !important;" title="Upload Trained Model">
+                <button name="results-trigger" class="btn btn-unique btn-outline-light disabled" style="width: 10%; background-color: #880e4f !important;" title="Upload Trained Model">
                     <i class="fas fa-file-import"></i>
                 </button>
             </div>
@@ -109,10 +109,10 @@
                 </div>
                 
                 <div class="flex-row" style="margin-top: 1rem;">
-                    <a id="train-button" class="btn btn-success" href="#results-section" onclick="onTrainButtonClick()" style="width: 145px;">
-                        <i class="fas fa-bolt pr-2" aria-hidden="true"></i> Train
+                    <a id="train-button" name="results-trigger" class="btn btn-success disabled" href="#results-section" onclick="onTrainButtonClick()" style="width: 145px;">
+                        <i class="fas fa-bolt pr-2 disabled" aria-hidden="true"></i> Train
                     </a>
-                    <button type="button" class="btn btn-unique" title="Upload Trained Model">
+                    <button name="results-trigger" class="btn btn-unique disabled" title="Upload Trained Model">
                         <i class="fas fa-file-import pr-2" aria-hidden="true"></i> Upload
                     </button>
                 </div>
@@ -160,7 +160,7 @@
 </script>
 
 <script>
-    /*** Settings panel toggler. ***/ // TODO: Make separate one for train button.
+    /*** Settings panel toggler. ***/
     function toggleSettingsPanel(action_click) {
         if (action_click) {
             $('#preprocess-collapse').collapse('toggle');
@@ -170,7 +170,7 @@
             $('#preprocess-collapse').collapse('hide'  );
         }
     }
-
+    /*** Toggles display policy of text-area's flex container ***/
     function flexDirectionToggle() {
         let icon      = document.getElementById('flex-toggler-icon');
         let container = document.getElementById('texts-container'  ); 
@@ -261,7 +261,21 @@
         let top_container = document.getElementById('top-container');
         top_container.insertBefore(alert, top_container.children[1]);
 
+        let result_buttons = document.getElementsByName('results-trigger');
+        for (button of result_buttons)
+            button.classList.add('disabled');
+
         toggleLoad(file_type);
+    }
+
+    function ifTrainReady() {
+        if (document.getElementById('nodespo-samples').childElementCount < 2 ||
+            document.getElementById('despo-samples'  ).childElementCount < 2 ) 
+            return;
+
+        let result_buttons = document.getElementsByName('results-trigger');
+        for (button of result_buttons)
+            button.classList.remove('disabled');
     }
 
     function samplesSelect(file_type) {
@@ -303,6 +317,7 @@
             dropdown.innerHTML = this.response;
     
             toggleLoad(file_type);
+            ifTrainReady();
         }
 
         // Send request
