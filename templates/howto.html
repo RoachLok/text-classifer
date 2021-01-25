@@ -1,0 +1,169 @@
+{% extends 'layout.html' %} {% block body %}
+<div class="jumbotron text-center" style="height: 7%">
+  <h1 style="margin-top: -0.9em">How to</h1>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="row" style="margin-bottom: 2em; margin-top: 2.5em">
+      <h2>Carga de noticias</h2>
+    </div>
+    <div class="row">
+      <div class="col-8">
+        <img src="static/img/howto/loadtexts.png" style="width: 100%" />
+      </div>
+      <div class="col-4">
+        <p style="text-align: justify">
+          Lo primero que debemos hacer al ingresar en nuestra aplicación es
+          cargar las noticias de despoblación y no despoblación, haciendo uso de
+          los botones correspondientes.
+        </p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row" style="margin-bottom: 2em; margin-top: 3em">
+        <h2>Selección de la carpeta de noticias</h2>
+      </div>
+      <div class="row">
+        <div class="col-4">
+          <p style="text-align: justify">
+            La aplicación nos mostrará un selector de archivos, donde se debe
+            elegir la carpeta que contenga las noticias de la categoría deseada.
+            A modo de ejemplo, cuando pulsemos el botón de despoblación
+            elegiremos la carpeta Despoblación y paralelamente podremos pulsar
+            el otro botón y seleccionar la carpeta de No Despoblación.
+          </p>
+          <p style="text-align: justify">
+            La app permite además, la carga simultánea de ambas carpetas
+            seleccionadas por el usuario, reduciendo de este modo el tiempo de
+            espera.
+          </p>
+        </div>
+        <div class="col-8">
+          <img src="static/img/howto/textselector.png" style="width: 90%" />
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row" style="margin-bottom: 2em; margin-top: 2.5em">
+        <h2>Búsqueda de ficheros cargados</h2>
+      </div>
+      <div class="row">
+        <div class="col-7">
+          <img src="static/img/howto/despoload.png" style="width: 70%" />
+          <img src="static/img/howto/nodespoload.png" style="width: 70%" />
+        </div>
+        <div class="col-5">
+          <p style="text-align: justify">
+            Una vez cargados los textos el usuario puede buscar un archivo
+            concreto si lo desea. Podrá seleccionar cualquier archivo y se
+            mostrará tanto su contenido original como el corpus del texto ya
+            procesado, pudiendo ver de este modo ambas versiones.
+          </p>
+          <p>
+            Está característica esta disponible tanto para las noticias cargadas
+            en el apartado de despoblación como para las noticias que se hayan
+            cargado en el no despoblación.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row" style="margin-bottom: 2em; margin-top: 3em">
+        <h2>Visualización de noticias cargadas</h2>
+      </div>
+      <div class="row">
+        <div class="col-4">
+          <p style="text-align: justify">
+            Cuando el usuario seleccione uno de los textos cargados tendrá la
+            opción de poder visualizar el texto original y el preprocesado tanto
+            en vertical como en horizontal.
+          </p>
+          <p style="text-align: justify">
+            Dicho botón facilita la visualización y lectura en otro tipo de
+            dispositivos sin importar el tamaño de su pantalla. Podremos
+            localizar el icono situado en la esquina superior derecha, tal y
+            como muestra la imagen adjunta.
+          </p>
+        </div>
+        <div class="col-8">
+          <img
+            src="static/img/howto/corpustextload.png"
+            style="
+              width: 90%;
+              display: block;
+              margin-left: auto;
+              margin-right: auto;
+              margin-bottom: 0.5em;
+            "
+          />
+          <img
+            src="static/img/howto/corpustextv2.png"
+            style="
+              width: 90%;
+              display: block;
+              margin-left: auto;
+              margin-right: auto;
+            "
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row" style="margin-bottom: 2em; margin-top: 2.5em">
+        <h2>Ajustes de Preprocesado</h2>
+      </div>
+      <div class="row">
+        <div class="col-8">
+          <img src="static/img/howto/preprocess.png" style="width: 100%" />
+        </div>
+        <div class="col-4">
+          <p style="text-align: justify">
+            Dentro de las opciones de preprocesado podremos indicar si queremos
+            o no el filtro mediante stopwords de nuestros textos. En caso de
+            alterar el uso de stopwords, los textos que hayan sido cargados
+            previamente serán eliminados, debiendo ser cargados de nuevo.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row" style="margin-bottom: 2em; margin-top: 3em">
+        <h2>Opciones de Entrenamiento</h2>
+      </div>
+      <div class="row">
+        <div class="col-4">
+          <p style="text-align: justify">
+            Para el entrenamiento se deberá seleccionar una de las 2 opciones de
+            vectorizado: Count Vectorizer o TF-IDF, además de seleccionar un
+            porcentaje de poda que será aplicado sobre los datos (el valor
+            óptimo de poda es del 6%).
+          </p>
+          <p style="text-align: justify">
+            Se debe seleccionar también el tipo de modelo con el que se desea
+            entrenar los textos, en caso de dejar seleccionado el modelo "AUTO"
+            el tiempo de espera será levemente mayor ya que probará a entrenar
+            los textos con todos y cada uno de los modelos existentes. Al
+            finalizar, nos mostrará cual es el modelo mas óptimo para nuestros
+            datos.
+          </p>
+          <p style="text-align: justify">
+            La opción de upload permite la subida de un modelo ya entrenado,
+            pudiendo aplicarle self tunning. Esta función permite la mejora de
+            dicho modelo escogiendo que parámetros se adaptan mejor, aumentando
+            así su precisión.
+          </p>
+        </div>
+        <div class="col-8">
+          <img src="static/img/howto/training.png" style="width: 90%" />
+        </div>
+      </div>
+    </div>
+
+    {% endblock %}
+  </div>
+</div>
