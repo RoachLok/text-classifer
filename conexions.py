@@ -78,11 +78,11 @@ def model_train(model_name="AUTO", vector_transform="cv", prune=10):
     if model_name == "AUTO":
         modelNameAutoSelected, confusion_matrix, accuracy, plt_img = model.model_training(
             model_name, dataset, corpus_dataset, vector_transform, prune)
-        return confusion_matrix, accuracy, plt_img
+        return modelNameAutoSelected, confusion_matrix, accuracy, plt_img
     else:
         confusion_matrix, accuracy, plt_img = model.model_training(
             model_name, dataset, corpus_dataset, vector_transform, prune)
-        return confusion_matrix, accuracy
+        return confusion_matrix, accuracy, plt_img
 
 
 def save_model_cv(savepath):
