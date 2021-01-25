@@ -10,7 +10,6 @@ import nltk
 from nltk.stem import SnowballStemmer
 nltk.download('stopwords')
 from nltk.corpus import stopwords
-from nltk.probability import FreqDist
 
 # Importacion de librerias para serializacion y fechaa/hora actual
 from pickle import dump
@@ -29,7 +28,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import GridSearchCV
 
 
@@ -177,7 +176,9 @@ class ModeloDesp:
             img = io.BytesIO()
             plt.savefig(img)
 
-            return type(self.selectedModel).__name__, confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred), img
+            cm = confusion_matrix(y_test, y_pred, labels=self.selectedModel.classes_)
+            img2 = plot_confusion_matrix(cm)
+            return type(self.selectedModel).__name__, img2, accuracy_score(y_test, y_pred), img
 
         # Si elegimos nosotros el modelo a entrenar
         else:
@@ -194,8 +195,27 @@ class ModeloDesp:
             ax.set_xlabel(type(self.selectedModel).__name__)
             img = io.BytesIO()
             plt.savefig(img)
+            cm = confusion_matrix(y_test, y_pred, labels=self.selectedModel.classes_)
+            img2 = plot_confusion_matrix(cm)
 
-            return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred), img
+            return type(self.selectedModel).__name__, img2, accuracy_score(y_test, y_pred), img
+
+    '''
+    Metodo para graficar la matriz de confusion
+    '''
+    def plot_confusion_matrix(self, cm):
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(111)
+        cax = ax2.matshow(cm)
+        plt.title('Confusion matrix of the classifier')
+        fig2.colorbar(cax)
+        ax2.set_xticklabels([''] + self.selectedModel.classes_)
+        ax2.set_yticklabels([''] + self.selectedModel.classes_)
+        plt.xlabel('Predicted')
+        plt.ylabel('True')
+        img2 = io.BytesIO()
+        plt.savefig(img2)
+        return img2
 
     '''
     Metodo para hacer un autoajuste de los parametros internos de tu modelo seleccionado.
@@ -240,7 +260,9 @@ class ModeloDesp:
         self.selectedModel = grid_search.best_estimator_ # Obtenemos nuestro modelo seleccionado con los parametros internos que mejor se ajustan (modelo seleccionado optimizado)
         self.selectedModel.fit(X_train, y_train)
         y_pred = self.selectedModel.predict(X_test)
-        return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred)
+        cm = confusion_matrix(y_test, y_pred, labels=self.selectedModel.classes_)
+        img2 = plot_confusion_matrix(cm)
+        return img2, accuracy_score(y_test, y_pred)
 
     '''
     Metodo que nos permite predecir la categoria a la que pertenecen noticias sin etiquetar
