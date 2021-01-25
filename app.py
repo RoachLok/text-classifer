@@ -21,6 +21,12 @@ def get_train_file(file_type):
     file_attri = file_type.split('-', 1)
     return jsonify(get_file_content(file_attri[1], file_attri[0]))
 
+@app.route('/train_model', methods=['GET', 'POST'])
+def train_model():
+    if request.method == 'POST':
+        json_array = request.get_json()
+        return render_template('_results-section.html', train_model(json_array))
+
 @app.route('/')
 def index():
     return render_template('index.html')

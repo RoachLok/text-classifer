@@ -1,7 +1,4 @@
-import os
-import numpy as np
 import pandas as pd
-from pathlib import Path
 from modelo_noticias_despoblacion import ModeloDesp
 
 despo_samples = []
@@ -72,18 +69,21 @@ def get_file_content(file_name, file_type):
                 return [file['content'], corpus_unlabeled[index]]
 
 
+def train_model(json_array):
+    return train_model(json_array[0], json_array[1], json_array[2])
+
 def train_model(modelName="AUTO", vector_transform="cv", prune=10):
     get_full_dataset()
     get_full_corpus()
     prune = prune / 100
     if modelName == "AUTO":
-        cm, accuracy, plt_img = model.model_training(
+        confusion_matrix, accuracy, plt_img = model.model_training(
             modelName, dataset, corpus_dataset, vector_transform, prune)
-        return cm, accuracy, plt_img
+        return confusion_matrix, accuracy, plt_img
     else:
-        cm, accuracy = model.model_training(
+        confusion_matrix, accuracy = model.model_training(
             modelName, dataset, corpus_dataset, vector_transform, prune)
-        return cm, accuracy
+        return confusion_matrix, accuracy
 
 
 def save_model_cv(savepath):
@@ -95,7 +95,7 @@ def load_model_cv(savepath):
 
 
 def tune_model():
-    cm, accuracy = model.model_self_tuning()
+    confusion_matrix, accuracy = model.model_self_tuning()
 
 
 def test_model():
