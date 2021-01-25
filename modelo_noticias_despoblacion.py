@@ -27,7 +27,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix,precision_recall_fscore_support
 from sklearn.model_selection import GridSearchCV
 
 
@@ -176,8 +176,8 @@ class ModeloDesp:
             plt.savefig(img)
 
             img2 = self.non_normalized_confm(self.selectedModel, X_test, y_test)
-
-            return type(self.selectedModel).__name__, img2, accuracy_score(y_test, y_pred), img
+            precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
+            return type(self.selectedModel).__name__, img2, [accuracy_score(y_test, y_pred), precision, recall, fscore], img
 
         # Si elegimos nosotros el modelo a entrenar
         else:
@@ -196,13 +196,16 @@ class ModeloDesp:
             plt.savefig(img)
 
             img2 = self.non_normalized_confm(X_test, y_test)
+            precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
 
-            return type(self.selectedModel).__name__, img2, accuracy_score(y_test, y_pred), img
+            return type(self.selectedModel).__name__, img2, [accuracy_score(y_test, y_pred), precision, recall, fscore], img
 
+    '''
+    Metodo para graficar la matriz de confusion
+    '''
 
     def non_normalized_confm(self, X_test, y_test):
-        titles_options = [("Confusion matrix, without normalization", None),
-                  ("Normalized confusion matrix", 'true')]
+        titles_options = [("Matriz de confusion", None)]
         for title, normalize in titles_options:
             disp = plot_confusion_matrix(self.selectedModel, X_test, y_test,
                                         display_labels=self.selectedModel.classes_,
@@ -214,23 +217,6 @@ class ModeloDesp:
         plt.savefig(img)
         return img
 
-    '''
-    Metodo para graficar la matriz de confusion
-    
-    def plot_confusion_matrix(self, cm):
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot(111)
-        cax = ax2.matshow(cm)
-        plt.title('Confusion matrix of the classifier')
-        fig2.colorbar(cax)
-        ax2.set_xticklabels( self.selectedModel.classes_)
-        ax2.set_yticklabels( self.selectedModel.classes_)
-        plt.xlabel('Predicted')
-        plt.ylabel('True')
-        img2 = io.BytesIO()
-        plt.savefig(img2)
-        return img2
-    '''
     '''
     Metodo para hacer un autoajuste de los parametros internos de tu modelo seleccionado.
     De esta manera conseguiremos obtener un modelo optimizado.
@@ -276,8 +262,8 @@ class ModeloDesp:
         y_pred = self.selectedModel.predict(X_test)
 
         img2 = self.non_normalized_confm(self.selectedModel, X_test, y_test)
-
-        return img2, accuracy_score(y_test, y_pred)
+        precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
+        return img2, [accuracy_score(y_test, y_pred), precision, recall, fscore]
 
     '''
     Metodo que nos permite predecir la categoria a la que pertenecen noticias sin etiquetar
@@ -296,11 +282,11 @@ class ModeloDesp:
      - El modelo seleccionado
      - La fecha y hora en que se hizo el entrenamiento
     '''
-    def save_model(self, filename):
+    def save_model(self, file):
         # save the model to disk
         # filename = 'finalized_model.sav'
         bow_model_save = (self.vectorizer, self.selectedModel, self.dateTime)
-        dump(bow_model_save, open(filename, 'wb'))
+        dump(bow_model_save, open(file, 'wb'))
 
     '''
     Metodo que nos permite deserializar y cargar:
@@ -308,7 +294,7 @@ class ModeloDesp:
      - El modelo seleccionado
      - La fecha y hora en que se hizo el entrenamiento del archivo cargado
     '''
-    def load_model(self, filename):
+    def load_model(self, file):
         # load the model from disk
-        bow_model_save = load(open(filename, 'rb'))
+        bow_model_save = load(open(file, 'rb'))
         self.vectorizer, self.selectedModel, self.dateTime = bow_model_save
