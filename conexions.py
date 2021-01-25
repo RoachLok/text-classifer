@@ -68,21 +68,17 @@ def get_file_content(file_name, file_type):
             if file['name'] == file_name:
                 return [file['content'], corpus_unlabeled[index]]
 
-
-def train_model(json_array):
-    return train_model(json_array[0], json_array[1], json_array[2])
-
-def train_model(modelName="AUTO", vector_transform="cv", prune=10):
+def model_train(model_name="AUTO", vector_transform="cv", prune=10):
     get_full_dataset()
     get_full_corpus()
     prune = prune / 100
-    if modelName == "AUTO":
+    if model_name == "AUTO":
         confusion_matrix, accuracy, plt_img = model.model_training(
-            modelName, dataset, corpus_dataset, vector_transform, prune)
+            model_name, dataset, corpus_dataset, vector_transform, prune)
         return confusion_matrix, accuracy, plt_img
     else:
         confusion_matrix, accuracy = model.model_training(
-            modelName, dataset, corpus_dataset, vector_transform, prune)
+            model_name, dataset, corpus_dataset, vector_transform, prune)
         return confusion_matrix, accuracy
 
 
