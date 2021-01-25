@@ -89,8 +89,8 @@ def save_model_cv(savepath):
     model.save_model(savepath)
 
 
-def load_model_cv(savepath):
-    model.load_model(savepath)
+def on_trained_upload(serialized_file):
+    model.load_model(serialized_file)
 
 
 def tune_model():

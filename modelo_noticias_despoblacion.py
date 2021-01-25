@@ -294,7 +294,7 @@ class ModeloDesp:
      - El modelo seleccionado
      - La fecha y hora en que se hizo el entrenamiento del archivo cargado
     '''
-    def load_model(self, file):
+    def load_model(self, serialized_file):
         # load the model from disk
-        bow_model_save = load(open(file, 'rb'))
+        bow_model_save = serialized_file
         self.vectorizer, self.selectedModel, self.dateTime = bow_model_save
