@@ -71,13 +71,16 @@ def get_file_content(file_name, file_type):
 def model_train(model_name="AUTO", vector_transform="cv", prune=10):
     get_full_dataset()
     get_full_corpus()
-    prune = prune / 100
+    if prune == 0:
+        prune = None
+    else:
+        prune = prune / 100
     if model_name == "AUTO":
-        confusion_matrix, accuracy, plt_img = model.model_training(
+        modelNameAutoSelected, confusion_matrix, accuracy, plt_img = model.model_training(
             model_name, dataset, corpus_dataset, vector_transform, prune)
         return confusion_matrix, accuracy, plt_img
     else:
-        confusion_matrix, accuracy = model.model_training(
+        confusion_matrix, accuracy, plt_img = model.model_training(
             model_name, dataset, corpus_dataset, vector_transform, prune)
         return confusion_matrix, accuracy
 
