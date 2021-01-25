@@ -6,7 +6,7 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-link" id="classifier-navlink" href="/classifier">Clasificador Noticias<span class="sr-only"></span></a>
-        <a class="nav-link" id="about-navlink" href="/howto">How To<span class="sr-only"></span></a>
+        <a class="nav-link" id="howto-navlink" href="/howto">How To<span class="sr-only"></span></a>
         <a class="nav-link" id="about-navlink" href="/about">About<span class="sr-only"></span></a>
       </div>
     </div>
@@ -14,13 +14,20 @@
 
 <script>
   const nav_link  = document.getElementById("classifier-navlink");
+  const nav_howto = document.getElementById("howto-navlink"     );
   const nav_about = document.getElementById("about-navlink"     );
 
-  if (window.location.href.includes("/Classifier")) {
-    nav_link.classList.add("active");
-    nav_about.classList.remove("active");
-  } else if (window.location.href.includes("/About")) {
-    nav_link.classList.remove("active");
-    nav_about.classList.add("active");
+  if (window.location.href.includes("/classifier")) {
+    nav_link  .classList.add    ("active");
+    nav_howto .classList.remove ("active");
+    nav_about .classList.remove ("active");
+  } else if (window.location.href.includes("/howto")) {
+    nav_link  .classList.remove ("active");
+    nav_howto .classList.add    ("active");
+    nav_about .classList.remove ("active");
+  } else if (window.location.href.includes("/about")) {
+    nav_link  .classList.remove ("active");
+    nav_howto .classList.remove ("active");
+    nav_about .classList.add    ("active");
   }
 </script>
