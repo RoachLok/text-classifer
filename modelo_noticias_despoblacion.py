@@ -12,6 +12,7 @@ nltk.download('stopwords')
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 
+# Importacion de librerias para serializacion y fechaa/hora actual
 from pickle import dump
 from pickle import load
 from datetime import datetime
@@ -34,11 +35,11 @@ from sklearn.model_selection import GridSearchCV
 
 class ModeloDesp:
     def __init__(self):
-        self.vectorizer = None
-        self.selectedModel = None
+        self.vectorizer # 
+        self.selectedModel
         self.dateTime = (datetime.now()).strftime("%d/%m/%Y %H:%M:%S")
-        self.X = None
-        self.y = None
+        self.X
+        self.y
 
     def cargarTextosTraining(self, json_files_train, categoria):
         train_set = pd.json_normalize(json_files_train)
@@ -56,15 +57,15 @@ class ModeloDesp:
     def preprocesarTextos(self, dataset, stopwords_setting=True):
         # Limpieza de textos, en los que se incluye tokenizacion y stemming.
         corpus = []
+        all_stopwords = stopwords.words('spanish')
         for i in range(len(dataset)):
             # Primera limpieza = solo conserva las letras. Todo lo que no sea una letra se remplaza por un espacio ''.
             text = re.sub('[^a-zA-Z]', ' ', dataset['noticia'][i])
             # Segunda limpieza = transformar todas las letras mayúsculas en minúsculas.
             text = text.lower()
-            text = text.split()  # Tercera limpieza = dividir los textos en sus diferentes palabras para que podamos aplicar lematizacion/stemming a cada palabra
+            text = text.split()  # Tercera limpieza = dividir los textos en sus diferentes palabras para que podamos aplicar lematizacion/stemming a cada palabra (tokenizacion)
             # Cuarta limpieza
             sst = SnowballStemmer('spanish')
-            all_stopwords = stopwords.words('spanish')
             if stopwords_setting:
                 # For en una línea, aplicamos stemming a cada palabra con la condición de no tratar y deshacerse de las stopwords.
                 text = [sst.stem(word)
@@ -78,17 +79,17 @@ class ModeloDesp:
 
     def model_name_selection(self, modelName):
         if modelName == "LR":
-            return LogisticRegression()
+            return LogisticRegression(n_jobs=-1)
         elif modelName == "LDA":
             return LinearDiscriminantAnalysis()
         elif modelName == "KNN":
-            return KNeighborsClassifier()
+            return KNeighborsClassifier(n_jobs=-1)
         elif modelName == "NB":
             return GaussianNB()
         elif modelName == "CART":
             return DecisionTreeClassifier()
         elif modelName == "RF":
-            return RandomForestClassifier()
+            return RandomForestClassifier(n_jobs=-1)
         elif modelName == "AB":
             return AdaBoostClassifier()
         elif modelName == "ANN":
@@ -106,12 +107,12 @@ class ModeloDesp:
             self.X, self.y, test_size=0.2, random_state=42)
         if modelName == "AUTO":
             models = []
-            models.append(('LR', LogisticRegression()))
+            models.append(('LR', LogisticRegression(n_jobs=-1)))
             models.append(('LDA', LinearDiscriminantAnalysis()))
-            models.append(('KNN', KNeighborsClassifier()))
+            models.append(('KNN', KNeighborsClassifier(n_jobs=-1)))
             models.append(('NB', GaussianNB()))
             models.append(('CART', DecisionTreeClassifier()))
-            models.append(('RF', RandomForestClassifier()))
+            models.append(('RF', RandomForestClassifier(n_jobs=-1)))
             models.append(('AB', AdaBoostClassifier()))
             models.append(('ANN', MLPClassifier()))
 
@@ -122,13 +123,13 @@ class ModeloDesp:
                     model, X_train, y_train, cv=10, scoring="accuracy")
                 results.append(cv_results)
                 names.append(name)
-                msg = f"{name}: {cv_results.mean()} ({cv_results.std()})"
+                #msg = f"{name}: {cv_results.mean()} ({cv_results.std()})"
 
             best_model = dict(
                 zip(names, [np.average(result) for result in results]))
-            self.selectedModel = [y for x, y in models if x == max(
+            self.selectedModel = [model for name, model in models if name == max(
                 best_model, key=best_model.get)][0]
-            self.selectedModel = self.selectedModel.fit(X_train, y_train)
+            self.selectedModel.fit(X_train, y_train)
             y_pred = self.selectedModel.predict(X_test)
 
             # b) Compare Algorithms
@@ -140,7 +141,7 @@ class ModeloDesp:
             img = io.BytesIO()
             plt.savefig(img)
 
-            return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred), img
+            return type(self.selectedModel).__name__,confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred), img
 
         else:
             self.selectedModel = self.model_name_selection(modelName)
