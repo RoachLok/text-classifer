@@ -3,11 +3,15 @@ from conexions import *
 
 app = Flask(__name__)
 
-@app.route('/Classifier')
+@app.route('/classifier')
 def classifier():
     return render_template('classifier.html')
 
-@app.route('/About')
+@app.route('/howto')
+def howto():
+    return render_template('howto.html')
+
+@app.route('/about')
 def about():
     return render_template('about.html')
 
