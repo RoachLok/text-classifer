@@ -1,11 +1,10 @@
 # Importing the libraries
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import plot_confusion_matrix
 import io
 import pandas as pd
-import os
 import re
-import time
 import nltk
 from nltk.stem import SnowballStemmer
 nltk.download('stopwords')
@@ -176,8 +175,8 @@ class ModeloDesp:
             img = io.BytesIO()
             plt.savefig(img)
 
-            cm = confusion_matrix(y_test, y_pred, labels=self.selectedModel.classes_)
-            img2 = plot_confusion_matrix(cm)
+            img2 = self.non_normalized_confm(self.selectedModel, X_test, y_test)
+
             return type(self.selectedModel).__name__, img2, accuracy_score(y_test, y_pred), img
 
         # Si elegimos nosotros el modelo a entrenar
@@ -195,28 +194,43 @@ class ModeloDesp:
             ax.set_xlabel(type(self.selectedModel).__name__)
             img = io.BytesIO()
             plt.savefig(img)
-            cm = confusion_matrix(y_test, y_pred, labels=self.selectedModel.classes_)
-            img2 = plot_confusion_matrix(cm)
+
+            img2 = self.non_normalized_confm(X_test, y_test)
 
             return type(self.selectedModel).__name__, img2, accuracy_score(y_test, y_pred), img
 
+
+    def non_normalized_confm(self, X_test, y_test):
+        titles_options = [("Confusion matrix, without normalization", None),
+                  ("Normalized confusion matrix", 'true')]
+        for title, normalize in titles_options:
+            disp = plot_confusion_matrix(self.selectedModel, X_test, y_test,
+                                        display_labels=self.selectedModel.classes_,
+                                        cmap=plt.cm.Blues,
+                                        normalize=normalize)
+            disp.ax_.set_title(title)
+
+        img = io.BytesIO()
+        plt.savefig(img)
+        return img
+
     '''
     Metodo para graficar la matriz de confusion
-    '''
+    
     def plot_confusion_matrix(self, cm):
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(111)
         cax = ax2.matshow(cm)
         plt.title('Confusion matrix of the classifier')
         fig2.colorbar(cax)
-        ax2.set_xticklabels([''] + self.selectedModel.classes_)
-        ax2.set_yticklabels([''] + self.selectedModel.classes_)
+        ax2.set_xticklabels( self.selectedModel.classes_)
+        ax2.set_yticklabels( self.selectedModel.classes_)
         plt.xlabel('Predicted')
         plt.ylabel('True')
         img2 = io.BytesIO()
         plt.savefig(img2)
         return img2
-
+    '''
     '''
     Metodo para hacer un autoajuste de los parametros internos de tu modelo seleccionado.
     De esta manera conseguiremos obtener un modelo optimizado.
@@ -260,8 +274,9 @@ class ModeloDesp:
         self.selectedModel = grid_search.best_estimator_ # Obtenemos nuestro modelo seleccionado con los parametros internos que mejor se ajustan (modelo seleccionado optimizado)
         self.selectedModel.fit(X_train, y_train)
         y_pred = self.selectedModel.predict(X_test)
-        cm = confusion_matrix(y_test, y_pred, labels=self.selectedModel.classes_)
-        img2 = plot_confusion_matrix(cm)
+
+        img2 = self.non_normalized_confm(self.selectedModel, X_test, y_test)
+
         return img2, accuracy_score(y_test, y_pred)
 
     '''
