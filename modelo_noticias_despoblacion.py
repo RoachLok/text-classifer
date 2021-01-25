@@ -8,12 +8,13 @@ import re
 import time
 import nltk
 from nltk.stem import SnowballStemmer
-# nltk.download('stopwords')
+nltk.download('stopwords')
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 
 from pickle import dump
 from pickle import load
+from datetime import datetime
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
@@ -23,7 +24,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
@@ -35,6 +36,7 @@ class ModeloDesp:
     def __init__(self):
         self.vectorizer = None
         self.selectedModel = None
+        self.dateTime = (datetime.now()).strftime("%d/%m/%Y %H:%M:%S")
         self.X = None
         self.y = None
 
@@ -81,10 +83,14 @@ class ModeloDesp:
             return LinearDiscriminantAnalysis()
         elif modelName == "KNN":
             return KNeighborsClassifier()
-        elif modelName == "SVC":
-            return SVC()
+        elif modelName == "NB":
+            return GaussianNB()
+        elif modelName == "CART":
+            return DecisionTreeClassifier()
         elif modelName == "RF":
             return RandomForestClassifier()
+        elif modelName == "AB":
+            return AdaBoostClassifier()
         elif modelName == "ANN":
             return MLPClassifier()
 
@@ -103,8 +109,10 @@ class ModeloDesp:
             models.append(('LR', LogisticRegression()))
             models.append(('LDA', LinearDiscriminantAnalysis()))
             models.append(('KNN', KNeighborsClassifier()))
-            models.append(('SVM', SVC()))
+            models.append(('NB', GaussianNB()))
+            models.append(('CART', DecisionTreeClassifier()))
             models.append(('RF', RandomForestClassifier()))
+            models.append(('AB', AdaBoostClassifier()))
             models.append(('ANN', MLPClassifier()))
 
             results = []
@@ -144,6 +152,8 @@ class ModeloDesp:
             return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred)
 
     def model_self_tuning(self):
+        X_train, X_test, y_train, y_test = train_test_split(
+            self.X, self.y, test_size=0.2, random_state=42)
         parameters = []
         if type(self.selectedModel).__name__ == 'LogisticRegression':
             parameters = [{'C': np.arange(0.1, 1.1, 0.1).tolist()}, {'penalty': [
@@ -154,18 +164,21 @@ class ModeloDesp:
         elif type(self.selectedModel).__name__ == 'KNeighborsClassifier':
             parameters = [{'n_neighbors': np.arange(1, 31, 1), 'weights': [
                 'uniform', 'distance']}]
-        elif type(self.selectedModel).__name__ == 'SVC':
-            parameters = [{'C': np.arange(0.1, 1.1, 0.1).tolist(), 'kernel': [
-                'linear', 'poly', 'rbf', 'sigmoid'], 'gamma':['scale', 'auto']}]
+        elif type(self.selectedModel).__name__ == 'GaussianNB':
+            self.selectedModel.fit(X_train, y_train)
+            y_pred = self.selectedModel.predict(X_test)
+            return confusion_matrix(y_test, y_pred), accuracy_score(y_test, y_pred)
+        elif type(self.selectedModel).__name__ == 'DecisionTreeClassifier':
+            parameters = [{'criterion': [
+                'gini', 'entropy'], 'max_features':['auto', 'sqrt', 'log2']}]
         elif type(self.selectedModel).__name__ == 'RandomForestClassifier':
             parameters = [{'n_estimators': np.arange(100, 320, 20), 'criterion': [
                 'gini', 'entropy']}]
+        elif type(self.selectedModel).__name__ == 'AdaBoostClassifier':
+            parameters = [{'n_estimators': np.arange(25, 50, 100, 200)}]
         elif type(self.selectedModel).__name__ == 'MLPClassifier':
             parameters = [{'hidden_layer_sizes': [(50, 50), (100, 100, 100), (400, 100, 50, 10)], 'batch_size':[
                 16, 32, 64], 'learning_rate':['adaptive'], 'max_iter':[50, 100, 300]}]
-
-        X_train, X_test, y_train, y_test = train_test_split(
-            self.X, self.y, test_size=0.2, random_state=42)
         grid_search = GridSearchCV(estimator=self.selectedModel,
                                    param_grid=parameters,
                                    scoring='accuracy',
@@ -187,10 +200,10 @@ class ModeloDesp:
     def save_model(self, filename):
         # save the model to disk
         # filename = 'finalized_model.sav'
-        bow_model_save = (self.vectorizer, self.selectedModel)
+        bow_model_save = (self.vectorizer, self.selectedModel, self.dateTime)
         dump(bow_model_save, open(filename, 'wb'))
 
     def load_model(self, filename):
         # load the model from disk
         bow_model_save = load(open(filename, 'rb'))
-        self.vectorizer, self.selectedModel = bow_model_save
+        self.vectorizer, self.selectedModel, self.dateTime = bow_model_save
