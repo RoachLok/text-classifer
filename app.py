@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, send_file
 from base64 import b64encode
 from conexions import *
+import json
 
 app = Flask(__name__)
 
@@ -47,12 +48,18 @@ def upload_model():
 @app.route('/classify')
 def classify():
     print(test_model())
-    return render_template('_classification.html', results_json =test_model())
+    return render_template('_classification.html', results_json = test_model())
     
 @app.route('/download_model')
 def download_trained_model():
     save_model_cv('download.sav')
     return send_file('download.sav', as_attachment=True)
+
+@app.route('/download_results')
+def download_results():
+    with open('results.json', 'w') as outfile:
+        json.dump(test_model(), outfile)
+    return send_file('results.json', as_attachment=True)
 
 @app.route('/')
 def index():
