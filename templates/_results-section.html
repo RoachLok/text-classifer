@@ -1,22 +1,24 @@
-<div class="row" style="margin-left: 5%;">
-    <div class="col">
-        <p id="box-graph" class="row" style="color: white; font-size: 2.5rem;">Diagrama de Bigotes: </p>
-        <img
-        id="box-graph"
-        class="row"
-        src="data:;base64,{{ plot_image }}"
-        style="width: 25vw;"/>
+{% if results[1] and results[2] and results[3] %}
+    <div class="row" style="margin-left: 5%;">
+        <div class="col">
+            <p id="box-graph" class="row" style="color: white; font-size: 2.5rem;">Diagrama de Bigotes: </p>
+            <img
+            id="box-graph"
+            class="row"
+            src="data:;base64,{{ plot_image }}"
+            style="width: 25vw;"/>
+        </div>
+        <div class="col">
+            <p id="box-graph" class="row" style="color: white; font-size: 2.5rem;">Matriz de confusión: </p>
+            <img
+            id="cm-graph"
+            class="row"
+            
+            src="data:;base64,{{ cm_image }}"
+            style=" width: 25vw;"/>
+        </div>
     </div>
-    <div class="col">
-        <p id="box-graph" class="row" style="color: white; font-size: 2.5rem;">Matriz de confusión: </p>
-        <img
-        id="cm-graph"
-        class="row"
-        
-        src="data:;base64,{{ cm_image }}"
-        style=" width: 25vw;"/>
-    </div>
-</div>
+{% endif %}
 
 <div class="row">
     <div class="col card text-white bg-warning" style="max-width: 90%; width: 450px; margin-left: 8vw; min-width: 488px; min-height: 225px; max-height: 225px;">
