@@ -1,4 +1,25 @@
 <div class="container text-center" style="margin-top: 3rem;">
+    <table>
+        <thead>
+            <tr>
+                <th>Noticia</th>
+                <th>Prediccion</th>
+                <th>ProbaDespoblacion</th>
+                <th>ProbaNoDespoblacion</th>
+              </tr>
+        </thead>
+        <tbody>
+            {% for row in results_json %}
+                <tr>
+                    <td>{{row['noticia']}}</td>
+                    <td>{{row['Prediccion']}}</td>
+                    <td>{{row['ProbaDespoblacion']}}</td>
+                    <td>{{row['ProbaNoDespoblacion']}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+      </table> 
+
     <a class="btn btn-primary" href="./download_results">
         <i class="far fa-file-excel pr-2"></i> Download Results
     </a>

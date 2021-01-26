@@ -300,7 +300,7 @@ class ModeloDesp:
         pd_results_test['ProbaDespoblacion'] = y_pred_proba[:,0]
         pd_results_test['ProbaNoDespoblacion'] = y_pred_proba[:,1]
 
-        dict_results_test = pd_results_test.to_dict()
+        dict_results_test = pd_results_test.to_dict(orient = 'list')
         #pd_results_test.to_csv('resultados_test.csv', index=False)
 
         return dict_results_test
