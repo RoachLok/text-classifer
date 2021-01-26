@@ -147,16 +147,41 @@
     </div>
 </section>
 
+<section id="results-section" class="row" style="margin-top: 3rem; background-color: #212121; height: 80vh; visibility: shown;">
+    <div class="row justify-content-around" style="margin-top: 2%; margin-left: 0.1%; max-height: 100px; margin-bottom: -8vh;">
+        <div class="row d-flex justify-content-between text-white border-bottom" style="margin-bottom: 0.25rem;">
+            <span class="col" style="margin-top: 1.4rem; font-size: 1.8rem; margin-left: 1vw; min-width: 334px;">
+                Resultados Entrenamiento
+            </span> 
+            <div class="col d-flex justify-content-end btn-group" style="min-width: 340px; -webkit-box-shadow: none; box-shadow: none; max-height: 4rem; margin-top: 1%;">
+                <button id="unlabel-drop" type="button" class="col-1 btn btn-info btn-outline-light dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: #880e4f !important;">
+                    <span id="unlabel-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                </button>
+                <div class="dropdown-menu" id="unlabel-samples" style="overflow-y: scroll; max-height: 25vh;">
+                    <button class="dropdown-item border-top border-info disabled">
+                        No se han cargado archivos.
+                    </button>
+                </div>
+                <button class="btn btn-info" onclick="document.getElementById('unlabel-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 10vw; background-color: #880e4f !important;">
+                    <i class="fas fa-folder-open" style="margin-right: 0.5rem;" ></i>
+                    unlabeled
+                </button>   <input id="unlabel-input" onChange="samplesSelect('unlabeled')" type="file" style="display: none" webkitdirectory directory multiple/>
+            </div>
+        </div>
+    </div>
+
+    <!--<button name="train-model" class="btn btn-success disabled waves-effect waves-light" title="Upload Trained Model" style="max-width: 5vw; max-height: 50px; margin-top: 2.5em; margin-right: 2.8em; min-width: 160px; font-size: 1rem; ">
+        <i class="fas fa-bolt pr-2" aria-hidden="true"></i> Train
+    </button> -->
+    
+  </div>
+</section>
+<!--
 <section id="results-section" class="row" style="margin-top: 3rem; background-color: #212121; height: 0vh; visibility: hidden;">
     <p id="results-spinner" class="text-white" style="margin-top: 3rem; margin-left: 2.8rem; font-size: 1.8rem; height: 10%;">Resultados Entrenamiento</p>
 
 </section>
-
-<section id="results-section" class="row" style="margin-top: 3rem; background-color: #212121; height: 0vh; visibility: hidden;">
-    <p id="results-spinner" class="text-white" style="margin-top: 3rem; margin-left: 2.8rem; font-size: 1.8rem; height: 10%;">Resultados Entrenamiento</p>
-
-</section>
-
+-->
 <script>
     function checkSampleCount() {
         // Check if enough samples for training.
@@ -178,8 +203,9 @@
         // Check if sample count is correct.
         if (!checkSampleCount())
             return;
-        
-        initResultPanel();
+
+        let form_values = Array.from(document.getElementById('train-form').querySelectorAll('select, input')).reduce((acc, input) => ({ ...acc, [input.id]: input.value}), {});
+        initResultPanel(form_values['model-select']);
 
         // Create a request variable and assign a new XMLHttpRequest object to it.
         const request = new XMLHttpRequest();
@@ -190,18 +216,23 @@
             let results_section = document.getElementById('results-section');
 
             let results_div = document.createElement('div');
+            results_div.classList.add('row');
             results_div.innerHTML = this.response;
 
-            results_section.replaceChild(results_div, results_section.children[1]);
+            results_section.style.height = '130vh';
+            results_section.replaceChild(results_div, results_section.children[2]);
+            
+
+            $("html, body").animate({ scrollTop: document.body.scrollHeight }, "slow");
         }
 
         // Send request
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        let form_values = Array.from(document.getElementById('train-form').querySelectorAll('select, input')).reduce((acc, input) => ({ ...acc, [input.id]: input.value}), {});
         request.send(JSON.stringify(form_values));
     }
 
     function onModelUpload() {
+        initResultPanel('Uploaded model');
         const model_file = document.getElementById('trained-input').files[0];
         let formData = new FormData();
         formData.append('model_file', model_file);     
@@ -216,19 +247,52 @@
         request.send(formData);
     }
 
-    function initResultPanel() {
+    function initResultPanel(selected_model) {
         $('#classifier-collapse').collapse('hide'  );
         $('#preprocess-collapse').collapse('hide'  );
 
         let results_section = document.getElementById('results-section');
         results_section.style.visibility = 'visible';
         results_section.style.height     = '90vh';
+
+        // Info card
+        const nodespo_sample_count = document.getElementById('nodespo-samples').childElementCount;  
+        const despo_sample_count   = document.getElementById('despo-samples'  ).childElementCount ;
+        const total_count = despo_sample_count + nodespo_sample_count;
+
+        let info_card = document.createElement('div')
+        info_card.classList.add('row');
+
+        info_card.innerHTML = `
+            <div class="row">
+                <div class="card text-white bg-warning" style="max-width: 90%; width: 450px; margin-left: 8vw; min-width: 290px; min-height: 195px; max-height: 195px;">
+                    <h5 class="card-header">Modelo Seleccionado: `+ selected_model +`</h5>
+                    <div class="card-body">
+                        <h5 class="card-title">Ejemplares cargados: </h5>
+                        <lu class="row">
+                            <h5 class="col-6 card-text">Despobalción </h5>
+                            <h5 class="col card-text" style="text-align: end;">`+ despo_sample_count +`</h5>
+                        </lu>
+                        <lu class="row">
+                            <h5 class="col-6 card-text">No Despobalción </h5>
+                            <h5 class="col card-text" style="text-align: end;">`+ nodespo_sample_count +`</h5>
+                        </lu>
+                        <lu class="row">
+                            <h5 class="col-6 card-text">Total</h5>
+                            <h5 class="col card-text" style="text-align: end;">`+ total_count +`</h5>
+                        </lu>
+                    </div>
+                </div>
+            </div> `
+        results_section.appendChild(info_card);
         
-        let result_spinner = document.createElement('div'); // Remove everything or check if size > 2.
+        // Spiner
+        let result_spinner = document.createElement('div'); // todoRemove everything or check if size > 2.
         result_spinner.innerHTML = '<div id="results-spinner" class="spinner-border text-warning" style="width: 4rem; height: 4rem;"> <span class="sr-only">Loading...</span> </div>'
         result_spinner.classList.add('text-center');
         result_spinner.style.marginTop = '-10rem';
         results_section.appendChild(result_spinner);
+
 
         document.getElementById('results-section').scrollIntoView();
     }
