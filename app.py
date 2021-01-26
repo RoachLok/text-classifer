@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from base64 import b64encode
 from conexions import *
 
 app = Flask(__name__)
@@ -29,7 +30,20 @@ def get_train_file(file_type):
 def train_model():
     if request.method == 'POST':
         json_array = request.get_json()
-        return render_template('_results-section.html', train_model(json_array))
+
+        results = model_train(model_name=json_array['model-select'], vector_transform=json_array['transform-select'], prune=int(json_array['prune-range']))
+        
+        cm_image   = b64encode(results[0].getvalue()).decode()
+        plot_image = b64encode(results[2].getvalue()).decode()
+
+        return render_template('_results-section.html', nam = results, cm_image = cm_image, plot_image = plot_image)
+
+@app.route('/trained_model', methods=['GET', 'POST'])
+def upload_mode():
+    if request.method == 'POST':
+        on_trained_upload(request.files['file'])
+
+        return render_template()
 
 @app.route('/')
 def index():

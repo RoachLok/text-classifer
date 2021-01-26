@@ -7,7 +7,7 @@
         <h1 style="margin-top: -0.7em;">Clasificador de Noticias</h1> 
     </div>
 
-    <!-- File upload -->
+    <!-- Samples upload -->
     <div class="row justify-content-around">
         <div class="col btn-group justify-content-center" style="min-width: 360px; -webkit-box-shadow: none; box-shadow: none;">
             <button class="btn btn-info" onclick="document.getElementById('despo-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 15vw;">
@@ -49,9 +49,9 @@
                 <button class="btn btn-primary btn-outline-light" onclick="toggleSettingsPanel(false)" style="width: 90%; background-color: #4285f4 !important; min-width: 162px;">
                     Ajustes de Clasificador
                 </button>
-                <button name="results-trigger" class="btn btn-unique btn-outline-light disabled" style="width: 10%; background-color: #880e4f !important;" title="Upload Trained Model">
+                <button name="results-trigger" class="btn btn-unique btn-outline-light" onclick="document.getElementById('trained-input').click();" style="width: 10%; background-color: #880e4f !important;" title="Upload Trained Model">
                     <i class="fas fa-file-import"></i>
-                </button>
+                </button>   <input id="trained-input" onChange="onModelUpload()" type="file" style="display: none;" accept=".sav"/>
             </div>
         </div>
         <div class="collapse" id="preprocess-collapse">
@@ -71,7 +71,7 @@
         <div class="collapse" id="classifier-collapse">
             <div class="card card-body ml-1">
                 <h4 class="card-title">Opciones de Entrenamiento: </h4>
-                <div class="row">
+                <div id="train-form" class="row form">
                     <div class="col" style=" min-width: 400px;">
                         <div class="row justify-content-start" style="padding-left: 1.25rem; padding-top: 0.25rem;">
                             <div class="col-5">
@@ -98,23 +98,26 @@
                     <div class="col" style="margin-top: -10; min-width: 400px; padding-left: 1.25rem; padding-top: 1rem;">
                         <label class="col-5" for="model-select">Tipo de Modelo:</label>
                         <select id="model-select" class="form-select" aria-label="Model Selector">
-                            <option value="LR" selected>Logistic Regression  </option>
-                            <option value="LDA">Linear Discriminant Analysis </option>
-                            <option value="KNN">KNeighbors Classifier        </option>
-                            <option value="SVC">Support-Vector Machine       </option>
-                            <option value="RF" >Random Forest Classifier     </option>  
-                            <option value="ANN">MLP Classifier               </option>
+                            <option value="AUTO" selected>Auto Model Selection</option>
+                            <option value="LDA" >Linear Discriminant Analysis </option>
+                            <option value="KNN" >KNeighbors Classifier        </option>
+                            <option value="LR"  >Logistic Regression          </option>
+                            <option value="RF"  >Random Forest Classifier     </option>  
+                            <option value="NB"  >Gaussian Naive Bayes         </option>  
+                            <option value="CART">DecissionTreeClassifier      </option>  
+                            <option value="AB"  >ADABoost Classifier          </option>  
+                            <option value="ANN" >MLP Classifier               </option>
                         </select>
                     </div>                        
                 </div>
                 
                 <div class="flex-row" style="margin-top: 1rem;">
-                    <a id="train-button" name="results-trigger" class="btn btn-success disabled" href="#results-section" onclick="onTrainButtonClick()" style="width: 145px;">
-                        <i class="fas fa-bolt pr-2 disabled" aria-hidden="true"></i> Train
-                    </a>
-                    <button name="results-trigger" class="btn btn-unique disabled" title="Upload Trained Model">
-                        <i class="fas fa-file-import pr-2" aria-hidden="true"></i> Upload
+                    <button id="train-button" name="results-trigger" class="btn btn-success" onclick="onTrainButtonClick()" style="width: 145px;">
+                        <i class="fas fa-bolt pr-2" aria-hidden="true"></i> Train
                     </button>
+                    <button name="results-trigger" class="btn btn-unique " href="#results-section" title="Upload Trained Model" onclick="document.getElementById('trained-input').click();">
+                        <i class="fas fa-file-import pr-2" aria-hidden="true"></i> Import
+                    </button> <!-- Using input from above button -->
                 </div>
             </div>
         </div>
@@ -144,18 +147,109 @@
     </div>
 </section>
 
-<section id="results-section" class="row" style="margin-top: 3rem; background-color: #212121; height: 70vh;">
-    
+<section id="results-section" class="row" style="margin-top: 3rem; background-color: #212121; height: 0vh; visibility: hidden;">
+    <p id="results-spinner" class="text-white" style="margin-top: 3rem; margin-left: 2.8rem; font-size: 1.8rem; height: 10%;">Resultados Entrenamiento</p>
+
+</section>
+
+<section id="results-section" class="row" style="margin-top: 3rem; background-color: #212121; height: 0vh; visibility: hidden;">
+    <p id="results-spinner" class="text-white" style="margin-top: 3rem; margin-left: 2.8rem; font-size: 1.8rem; height: 10%;">Resultados Entrenamiento</p>
+
 </section>
 
 <script>
-    function onTrainButtonClick() { // TODO: Check if files where uploaded
-        let button = document.getElementById('train-button');
+    function checkSampleCount() {
+        // Check if enough samples for training.
+        if (document.getElementById('nodespo-samples').childElementCount > 19 ||
+            document.getElementById('despo-samples'  ).childElementCount > 19 ) 
+            return true;
 
+        let alert_rawhtml = '<div class="alert alert-danger alert-dismissible fade show" role="alert"> <strong>Insuficientes muestras.</strong> El dataset debe contener al menos 20 muestras.<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>'
+        let alert = document.createElement('div');
+        alert.innerHTML = alert_rawhtml;
 
+        let top_container = document.getElementById('top-container');
+        top_container.insertBefore(alert, top_container.children[1]);
+
+        return false;
+    }   
+
+    function onTrainButtonClick() {
+        // Check if sample count is correct.
+        if (!checkSampleCount())
+            return;
         
+        initResultPanel();
+
+        // Create a request variable and assign a new XMLHttpRequest object to it.
+        const request = new XMLHttpRequest();
+        // Open a new connection, using the POST request on the URL endpoint.
+        request.open('POST', './train_model', true);
+
+        request.onload = function () {  // Process response somehow.
+            let results_section = document.getElementById('results-section');
+
+            let results_div = document.createElement('div');
+            results_div.innerHTML = this.response;
+
+            results_section.replaceChild(results_div, results_section.children[1]);
+        }
+
+        // Send request
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        let form_values = Array.from(document.getElementById('train-form').querySelectorAll('select, input')).reduce((acc, input) => ({ ...acc, [input.id]: input.value}), {});
+        request.send(JSON.stringify(form_values));
+    }
+
+    function onModelUpload() {
+        const model_file = document.getElementById('trained-input').files[0];
+        let formData = new FormData();
+        formData.append('file', model_file);     
+
+        const request = new XMLHttpRequest();
+        request.open('POST', './trained_model', true);
+        
+        request.onload = function () {  
+            console.log('server says ', this.response)
+        }
+        
+        request.send(formData);
+        
+
+
+        // Read file
+       /*  let fr = new FileReader();
+        fr.onload  = function (event) {
+            const request = new XMLHttpRequest();
+            request.open('POST', './trained_model', true);
+            
+            request.onload = function () {  
+                console.log('server says ', this.response)
+            }
+            
+            request.responseType = 'blob';
+            console.log(event.target.result);
+            request.send(event.target.result);
+        }
+
+        fr.readAsText(model_file[0]);  */
+    }
+
+    function initResultPanel() {
         $('#classifier-collapse').collapse('hide'  );
         $('#preprocess-collapse').collapse('hide'  );
+
+        let results_section = document.getElementById('results-section');
+        results_section.style.visibility = 'visible';
+        results_section.style.height     = '90vh';
+        
+        let result_spinner = document.createElement('div'); // Remove everything or check if size > 2.
+        result_spinner.innerHTML = '<div id="results-spinner" class="spinner-border text-warning" style="width: 4rem; height: 4rem;"> <span class="sr-only">Loading...</span> </div>'
+        result_spinner.classList.add('text-center');
+        result_spinner.style.marginTop = '-10rem';
+        results_section.appendChild(result_spinner);
+
+        document.getElementById('results-section').scrollIntoView();
     }
 </script>
 
@@ -192,7 +286,7 @@
     /*** Prune slider instantiation. ***/
     let slider = new Slider("#prune-range", {
         precision: 1,
-        value: 20   // Slider will instantiate showing 20 due to specified precision
+        value: 6   // Slider will instantiate showing 20 due to specified precision
     });
 </script>
 <style>   
@@ -269,18 +363,30 @@
     }
 
     function ifTrainReady() {
+        // Check if dropdowns have more than 1 element (empty).
         if (document.getElementById('nodespo-samples').childElementCount < 2 ||
             document.getElementById('despo-samples'  ).childElementCount < 2 ) 
             return;
 
+        // If more than one enable buttons.
         let result_buttons = document.getElementsByName('results-trigger');
         for (button of result_buttons)
             button.classList.remove('disabled');
     }
 
+    function filterFiles(files) {
+        let filtered_files = []
+        for (file of files)
+            if (file.type == 'text/plain')
+                filtered_files.push(file);
+
+        return filtered_files
+    }
+
     function samplesSelect(file_type) {
         toggleLoad(file_type);
-        const directory_files = document.getElementById(file_type+'-input').files;
+        const directory_files = filterFiles(document.getElementById(file_type+'-input').files);
+
         if (directory_files.length == 0)
             return onEmptyDirectory(file_type);
 
