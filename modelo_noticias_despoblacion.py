@@ -7,7 +7,7 @@ import pandas as pd
 import re
 import nltk
 from nltk.stem import SnowballStemmer
-nltk.download('stopwords')
+#nltk.download('stopwords')
 from nltk.corpus import stopwords
 
 # Importacion de librerias para serializacion y fechaa/hora actual
@@ -176,7 +176,7 @@ class ModeloDesp:
             img = io.BytesIO()
             plt.savefig(img)
 
-            img2 = self.non_normalized_confm(self.selectedModel, X_test, y_test)
+            img2 = self.non_normalized_confm( X_test, y_test)
             precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
             accuracy = accuracy_score(y_test, y_pred)
             precision = round(precision,2) * 100
@@ -188,7 +188,7 @@ class ModeloDesp:
         # Si elegimos nosotros el modelo a entrenar
         else:
             self.selectedModel = self.model_name_selection(modelName)
-            cv_results = cross_val_score(self.selectedModel, X_train, y_train, cv=10, scoring="accuracy")
+            cv_results = cross_val_score(X_train, y_train, cv=10, scoring="accuracy")
             self.selectedModel.fit(X_train, y_train)
             y_pred = self.selectedModel.predict(X_test)
 
@@ -272,7 +272,7 @@ class ModeloDesp:
         self.selectedModel.fit(X_train, y_train)
         y_pred = self.selectedModel.predict(X_test)
 
-        img2 = self.non_normalized_confm(self.selectedModel, X_test, y_test)
+        img2 = self.non_normalized_confm(X_test, y_test)
         precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
         accuracy = accuracy_score(y_test, y_pred)
         precision = round(precision,2) * 100
