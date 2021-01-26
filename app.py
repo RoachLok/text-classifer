@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 from base64 import b64encode
 from conexions import *
 
@@ -30,13 +30,12 @@ def get_train_file(file_type):
 def train_model():
     if request.method == 'POST':
         json_array = request.get_json()
-
-        results = model_train(model_name=json_array['model-select'], vector_transform=json_array['transform-select'], prune=int(json_array['prune-range']))
         
+        results = model_train(model_name=json_array['model-select'], vector_transform=json_array['transform-select'], prune=int(json_array['prune-range']))
         cm_image   = b64encode(results[0].getvalue()).decode()
         plot_image = b64encode(results[2].getvalue()).decode()
 
-        return render_template('_results-section.html', nam = results, cm_image = cm_image, plot_image = plot_image)
+        return render_template('_results-section.html', results = results, cm_image = cm_image, plot_image = plot_image)
 
 @app.route('/trained_model', methods=['GET', 'POST'])
 def upload_model():
@@ -44,6 +43,16 @@ def upload_model():
         on_trained_upload(request.files['model_file'].read())
         # Temporal return
         return render_template('_results-section.html')
+
+@app.route('/classify')
+def classify():
+    print(test_model())
+    return render_template('_classification.html', results_json =test_model())
+    
+@app.route('/download_model')
+def download_trained_model():
+    save_model_cv('download.sav')
+    return send_file('download.sav', as_attachment=True)
 
 @app.route('/')
 def index():
