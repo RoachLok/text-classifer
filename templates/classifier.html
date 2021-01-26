@@ -204,7 +204,7 @@
     function onModelUpload() {
         const model_file = document.getElementById('trained-input').files[0];
         let formData = new FormData();
-        formData.append('file', model_file);     
+        formData.append('model_file', model_file);     
 
         const request = new XMLHttpRequest();
         request.open('POST', './trained_model', true);
@@ -214,25 +214,6 @@
         }
         
         request.send(formData);
-        
-
-
-        // Read file
-       /*  let fr = new FileReader();
-        fr.onload  = function (event) {
-            const request = new XMLHttpRequest();
-            request.open('POST', './trained_model', true);
-            
-            request.onload = function () {  
-                console.log('server says ', this.response)
-            }
-            
-            request.responseType = 'blob';
-            console.log(event.target.result);
-            request.send(event.target.result);
-        }
-
-        fr.readAsText(model_file[0]);  */
     }
 
     function initResultPanel() {

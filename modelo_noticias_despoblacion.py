@@ -11,6 +11,7 @@ nltk.download('stopwords')
 from nltk.corpus import stopwords
 
 # Importacion de librerias para serializacion y fechaa/hora actual
+import pickle
 from pickle import dump
 from pickle import load
 from datetime import datetime
@@ -296,5 +297,5 @@ class ModeloDesp:
     '''
     def load_model(self, serialized_file):
         # load the model from disk
-        bow_model_save = serialized_file
-        self.vectorizer, self.selectedModel, self.dateTime = bow_model_save
+        bow_model_save = pickle.loads(serialized_file)
+        self.count_vectorizer, self.selectedModel, self.dateTime = bow_model_save

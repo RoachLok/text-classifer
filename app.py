@@ -39,11 +39,11 @@ def train_model():
         return render_template('_results-section.html', nam = results, cm_image = cm_image, plot_image = plot_image)
 
 @app.route('/trained_model', methods=['GET', 'POST'])
-def upload_mode():
+def upload_model():
     if request.method == 'POST':
-        on_trained_upload(request.files['file'])
-
-        return render_template()
+        on_trained_upload(request.files['model_file'].read())
+        # Temporal return
+        return render_template('_results-section.html')
 
 @app.route('/')
 def index():
