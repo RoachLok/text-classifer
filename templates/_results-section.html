@@ -19,7 +19,7 @@
 </div>
 
 <div class="row">
-    <div class="card text-white bg-warning" style="max-width: 90%; width: 450px; margin-left: 8vw; min-width: 488px; min-height: 225px; max-height: 225px;">
+    <div class="col card text-white bg-warning" style="max-width: 90%; width: 450px; margin-left: 8vw; min-width: 488px; min-height: 225px; max-height: 225px;">
         <h5 class="card-header">Modelo entrenado: {{ results[3] }}</h5>
         <div class="card-body">
             <h5 class="card-title">Métricas de rendimiento: </h5>
@@ -40,5 +40,16 @@
                 <h5 class="col card-text" style="text-align: end;">{{ results[1][3] }}</h5>
             </lu>
         </div>
+    </div>
+    <div class="col flex-row" style="margin-top: 113px; margin-left: 2rem;">
+        <button id="classify-button" class="btn btn-success disabled" onclick="classifyUnlabeled()">
+            <i class="fas fa-book-reader pr-2"></i>Clasificar
+        </button>
+        <button name="results-trigger" class="btn btn-danger" onclick="cleanResults()">
+            <i class="fas fa-redo-alt pr-2"></i>StartOver
+        </button>
+        <button class="btn btn-primary" onclick="downloadModel()">
+            <i class="fas fa-file-download"></i>Download Model
+        </button>
     </div>
 </div> 
