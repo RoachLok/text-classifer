@@ -184,6 +184,8 @@
             results_container.id = 'clasifications-container';
             results_container.innerHTML = this.response;
 
+            big_parent.appendChild(results_container);
+
             $("html, body").animate({ scrollTop: document.body.scrollHeight }, "slow");
         }
         // Send request

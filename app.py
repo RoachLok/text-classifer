@@ -47,7 +47,6 @@ def upload_model():
 
 @app.route('/classify')
 def classify():
-    print(test_model())
     return render_template('_classification.html', results_json = test_model())
     
 @app.route('/download_model')

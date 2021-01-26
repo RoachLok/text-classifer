@@ -1,24 +1,25 @@
 <div class="container text-center" style="margin-top: 3rem;">
-    <table>
-        <thead>
-            <tr>
-                <th>Noticia</th>
-                <th>Prediccion</th>
-                <th>ProbaDespoblacion</th>
-                <th>ProbaNoDespoblacion</th>
-              </tr>
+    <table class="table table-striped table-hover">
+        <thead class="table-light">
+            <tr class="table-light">
+            <th scope="col">Index</th>
+            <th scope="col">Contenido_Noticia</th>
+            <th scope="col">Predicción</th>
+            <th scope="col">Proba_Despo</th>
+            <th scope="col">Proba_NoDespo</th>
+            </tr>
         </thead>
         <tbody>
-            {% for row in results_json %}
-                <tr>
-                    <td>{{row['noticia']}}</td>
-                    <td>{{row['Prediccion']}}</td>
-                    <td>{{row['ProbaDespoblacion']}}</td>
-                    <td>{{row['ProbaNoDespoblacion']}}</td>
+            {% for content in results_json['noticia'] %}
+                <th scope="row">{{ loop.index }}</th>
+                    <td>{{ content }}</td>
+                    <td>{{ results_json['Prediccion'][loop.index] }}</td>
+                    <td>{{ results_json['ProbaDespoblacion'][loop.index] }}</td>
+                    <td>{{ results_json['ProbaNoDespoblacion'][loop.index] }}</td>
                 </tr>
             {% endfor %}
         </tbody>
-      </table> 
+    </table>
 
     <a class="btn btn-primary" href="./download_results">
         <i class="far fa-file-excel pr-2"></i> Download Results
