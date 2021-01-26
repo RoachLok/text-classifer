@@ -140,6 +140,7 @@ class ModeloDesp:
             self.vectorizer = CountVectorizer(min_df=min_dif)
         elif(vector_transform == "tfidf"):
             self.vectorizer = TfidfVectorizer(min_df=min_dif)
+        
         self.X = self.vectorizer.fit_transform(corpus).toarray() # Aplicamos la transformacion de terminos al corpus para generar la matriz de terminos (X)
         self.y = dataset['categoria'].values # Variable dependiente y (categorias)
         X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=0.2, random_state=42) # Split para entrenamiento-test
@@ -188,7 +189,8 @@ class ModeloDesp:
         # Si elegimos nosotros el modelo a entrenar
         else:
             self.selectedModel = self.model_name_selection(modelName)
-            cv_results = cross_val_score(X_train, y_train, cv=10, scoring="accuracy")
+            
+            cv_results = cross_val_score(self.selectedModel, X_train, y_train, cv=10, scoring="accuracy")
             self.selectedModel.fit(X_train, y_train)
             y_pred = self.selectedModel.predict(X_test)
 
@@ -210,6 +212,7 @@ class ModeloDesp:
             accuracy = round(accuracy,2) * 100
 
             return type(self.selectedModel).__name__, img2, [accuracy, precision, recall, fscore], img
+            
 
     '''
     Metodo para graficar la matriz de confusion
@@ -292,12 +295,13 @@ class ModeloDesp:
         y_pred_proba = self.selectedModel.predict_proba(test)
         y_pred_proba = np.matrix.round(y_pred_proba, 3)
 
-        pd_results_test = self.test_set
+        pd_results_test = unlabeled_set
         pd_results_test['Prediccion'] = y_pred
         pd_results_test['ProbaDespoblacion'] = y_pred_proba[:,0]
         pd_results_test['ProbaNoDespoblacion'] = y_pred_proba[:,1]
 
         dict_results_test = pd_results_test.to_dict()
+        #pd_results_test.to_csv('resultados_test.csv', index=False)
 
         return dict_results_test
 
