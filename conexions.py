@@ -92,7 +92,7 @@ def save_model_cv(savepath):
 
 
 def on_trained_upload(serialized_file):
-    model.load_model(serialized_file)
+    return model.load_model(serialized_file)
 
 
 def tune_model():

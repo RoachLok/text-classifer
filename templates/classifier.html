@@ -263,7 +263,17 @@
         request.open('POST', './trained_model', true);
         
         request.onload = function () {  
-            console.log('server says ', this.response)
+            let results_section = document.getElementById('results-section');
+
+            let results_div = document.createElement('div');
+            results_div.classList.add('row');
+            results_div.innerHTML = this.response;
+
+            results_section.style.height = '130vh';
+            results_section.replaceChild(results_div, results_section.children[2]);
+
+
+            $("html, body").animate({ scrollTop: document.body.scrollHeight }, "slow");
         }
         
         request.send(formData);

@@ -323,3 +323,4 @@ class ModeloDesp:
         # load the model from disk
         bow_model_save = pickle.loads(serialized_file)
         self.count_vectorizer, self.selectedModel, self.dateTime = bow_model_save
+        return type(self.selectedModel).__name__

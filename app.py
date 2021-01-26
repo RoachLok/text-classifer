@@ -41,9 +41,9 @@ def train_model():
 @app.route('/trained_model', methods=['GET', 'POST'])
 def upload_model():
     if request.method == 'POST':
-        on_trained_upload(request.files['model_file'].read())
-        # Temporal return
-        return render_template('_results-section.html')
+        model_name = on_trained_upload(request.files['model_file'].read())
+        results = [0, 0, 0, model_name]
+        return render_template('_results-section.html', results=results)
 
 @app.route('/classify')
 def classify():
