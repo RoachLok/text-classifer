@@ -47,7 +47,16 @@ def upload_model():
 
 @app.route('/classify')
 def classify():
-    return render_template('_classification.html', results_json = test_model())
+    results_json = test_model()
+    despo_count = 0
+    nodespo_count = 0
+    for classification in results_json['Prediccion']:
+        if (classification == 'Despoblacion'):
+            despo_count = despo_count + 1
+        else:
+            nodespo_count = nodespo_count + 1
+    
+    return render_template('_classification.html', results_json = results_json, despo_count = despo_count, nodespo_count = nodespo_count)
     
 @app.route('/download_model')
 def download_trained_model():
