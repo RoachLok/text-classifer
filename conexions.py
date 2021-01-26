@@ -8,6 +8,7 @@ model = ModeloDesp()
 despo_set = None
 nodespo_set = None
 dataset = None
+unlabeled_set = None
 corpus_desp = []
 corpus_nodespo = []
 corpus_unlabeled = []
@@ -20,6 +21,7 @@ def on_file_upload(json_array, file_type, stopwords=True):
     global unlabeled_samples
     global despo_set
     global nodespo_set
+    global unlabeled_set
     global corpus_desp
     global corpus_nodespo
     global corpus_unlabeled
@@ -95,7 +97,9 @@ def on_trained_upload(serialized_file):
 
 def tune_model():
     confusion_matrix, metrics = model.model_self_tuning()
+    return confusion_matrix, metrics
 
 
 def test_model():
-    y_pred, y_pred_proba = model.model_testing(corpus_unlabeled)
+    dict_results_test = model.model_testing(unlabeled_set, corpus_unlabeled)
+    return dict_results_test

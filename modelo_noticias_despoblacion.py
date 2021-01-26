@@ -284,13 +284,22 @@ class ModeloDesp:
     '''
     Metodo que nos permite predecir la categoria a la que pertenecen noticias sin etiquetar
     Los resultados de la prediccion vendran dado en formato: categoria predicha y la probabilidad de pertenecer a dicha categoria
+    Devolveremos los datos estructurados en un diccionario
     '''
-    def model_testing(self, corpus_test):
+    def model_testing(self, unlabeled_set, corpus_test):
         test = self.vectorizer.transform(corpus_test).toarray()
         y_pred = self.selectedModel.predict(test)
         y_pred_proba = self.selectedModel.predict_proba(test)
         y_pred_proba = np.matrix.round(y_pred_proba, 3)
-        return y_pred, y_pred_proba
+
+        pd_results_test = self.test_set
+        pd_results_test['Prediccion'] = y_pred
+        pd_results_test['ProbaDespoblacion'] = y_pred_proba[:,0]
+        pd_results_test['ProbaNoDespoblacion'] = y_pred_proba[:,1]
+
+        dict_results_test = pd_results_test.to_dict()
+
+        return dict_results_test
 
     '''
     Metodo que nos permite serializar y guardar:
