@@ -178,7 +178,12 @@ class ModeloDesp:
 
             img2 = self.non_normalized_confm(self.selectedModel, X_test, y_test)
             precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
-            return type(self.selectedModel).__name__, img2, [accuracy_score(y_test, y_pred), precision, recall, fscore], img
+            accuracy = accuracy_score(y_test, y_pred)
+            precision = round(precision,2) * 100
+            recall = round(recall,2) * 100
+            fscore = round(fscore,2) * 100
+            accuracy = round(accuracy,2) * 100
+            return type(self.selectedModel).__name__, img2, [accuracy, precision, recall, fscore], img
 
         # Si elegimos nosotros el modelo a entrenar
         else:
@@ -198,8 +203,13 @@ class ModeloDesp:
 
             img2 = self.non_normalized_confm(X_test, y_test)
             precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
+            accuracy = accuracy_score(y_test, y_pred)
+            precision = round(precision,2) * 100
+            recall = round(recall,2) * 100
+            fscore = round(fscore,2) * 100
+            accuracy = round(accuracy,2) * 100
 
-            return type(self.selectedModel).__name__, img2, [accuracy_score(y_test, y_pred), precision, recall, fscore], img
+            return type(self.selectedModel).__name__, img2, [accuracy, precision, recall, fscore], img
 
     '''
     Metodo para graficar la matriz de confusion
@@ -264,7 +274,12 @@ class ModeloDesp:
 
         img2 = self.non_normalized_confm(self.selectedModel, X_test, y_test)
         precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
-        return img2, [accuracy_score(y_test, y_pred), precision, recall, fscore]
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = round(precision,2) * 100
+        recall = round(recall,2) * 100
+        fscore = round(fscore,2) * 100
+        accuracy = round(accuracy,2) * 100
+        return img2, [accuracy, precision, recall, fscore]
 
     '''
     Metodo que nos permite predecir la categoria a la que pertenecen noticias sin etiquetar
