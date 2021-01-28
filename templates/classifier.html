@@ -290,8 +290,8 @@
         results_section.style.height     = '90vh';
 
         // Info card
-        const nodespo_sample_count = document.getElementById('nodespo-samples').childElementCount;  
-        const despo_sample_count   = document.getElementById('despo-samples'  ).childElementCount ;
+        const nodespo_sample_count = document.getElementById('nodespo-samples').childElementCount - 1;  
+        const despo_sample_count   = document.getElementById('despo-samples'  ).childElementCount - 1;
         const total_count = despo_sample_count + nodespo_sample_count;
 
         let info_card = document.createElement('div')

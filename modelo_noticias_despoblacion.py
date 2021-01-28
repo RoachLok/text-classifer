@@ -289,13 +289,14 @@ class ModeloDesp:
     Los resultados de la prediccion vendran dado en formato: categoria predicha y la probabilidad de pertenecer a dicha categoria
     Devolveremos los datos estructurados en un diccionario
     '''
-    def model_testing(self, unlabeled_set, corpus_test):
+    def model_testing(self, unlabeled_set, corpus_test, file_test_names):
         test = self.vectorizer.transform(corpus_test).toarray()
         y_pred = self.selectedModel.predict(test)
         y_pred_proba = self.selectedModel.predict_proba(test)
         y_pred_proba = np.matrix.round(y_pred_proba, 3)
 
         pd_results_test = unlabeled_set
+        pd_results_test['Fichero'] = file_test_names
         pd_results_test['Prediccion'] = y_pred
         pd_results_test['ProbaDespoblacion'] = y_pred_proba[:,0]
         pd_results_test['ProbaNoDespoblacion'] = y_pred_proba[:,1]

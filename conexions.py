@@ -101,5 +101,9 @@ def tune_model():
 
 
 def test_model():
-    dict_results_test = model.model_testing(unlabeled_set, corpus_unlabeled)
+    file_test_names = []
+    for index, file in enumerate(unlabeled_samples):
+        file_test_names.append(file['name'])
+    dict_results_test = model.model_testing(unlabeled_set, corpus_unlabeled, file_test_names)
+
     return dict_results_test
