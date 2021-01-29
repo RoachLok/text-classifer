@@ -14,6 +14,10 @@ corpus_nodespo = []
 corpus_unlabeled = []
 corpus_dataset = []
 
+modelNameAutoSelected = None
+metrics = []
+confusion_matrix = None
+plt_img = None
 
 def on_file_upload(json_array, file_type, stopwords=True):
     global despo_samples
@@ -71,6 +75,10 @@ def get_file_content(file_name, file_type):
                 return [file['content'], corpus_unlabeled[index]]
 
 def model_train(model_name="AUTO", vector_transform="cv", prune=10):
+    global modelNameAutoSelected
+    global confusion_matrix
+    global metrics
+    global plt_img
     get_full_dataset()
     get_full_corpus()
     if prune == 0:
@@ -88,16 +96,16 @@ def model_train(model_name="AUTO", vector_transform="cv", prune=10):
 
 
 def save_model_cv(savepath):
-    model.save_model(savepath)
+    model.save_model(savepath, modelNameAutoSelected, confusion_matrix, metrics, plt_img)
 
 
 def on_trained_upload(serialized_file):
-    return model.load_model(serialized_file)
-
+    modelNameAutoSelected, confusion_matrix, metrics, plt_img = model.load_model(serialized_file)
+    return confusion_matrix, metrics, plt_img, modelNameAutoSelected
 
 def tune_model():
-    confusion_matrix, metrics = model.model_self_tuning()
-    return confusion_matrix, metrics
+    modelNameAutoSelected, confusion_matrix, metrics, plt_img = model.model_self_tuning()
+    return confusion_matrix, metrics, plt_img, modelNameAutoSelected
 
 
 def test_model():

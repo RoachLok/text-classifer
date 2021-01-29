@@ -38,12 +38,21 @@ def train_model():
 
         return render_template('_results-section.html', results = results, cm_image = cm_image, plot_image = plot_image)
 
+@app.route('/model_autotune')
+def model_autotune():
+    results = tune_model()
+    cm_image   = b64encode(results[0].getvalue()).decode()
+    plot_image = b64encode(results[2].getvalue()).decode()
+    return render_template('_results-section.html', results = results, cm_image = cm_image, plot_image = plot_image)
+
 @app.route('/trained_model', methods=['GET', 'POST'])
 def upload_model():
     if request.method == 'POST':
-        model_name = on_trained_upload(request.files['model_file'].read())
-        results = [0, 0, 0, model_name]
-        return render_template('_results-section.html', results=results)
+        results = on_trained_upload(request.files['model_file'].read())
+        cm_image   = b64encode(results[0].getvalue()).decode()
+        plot_image = b64encode(results[2].getvalue()).decode()
+
+        return render_template('_results-section.html', results=results, cm_image = cm_image, plot_image = plot_image)
 
 @app.route('/classify')
 def classify():

@@ -196,8 +196,11 @@
         let big_parent = document.getElementById('big-parent');
 
         let clasifications_container = document.getElementById('clasifications-container');
-        if (clasifications_container)
+        
+        while (clasifications_container) {
             big_parent.removeChild(clasifications_container);
+            clasifications_container = document.getElementById('clasifications-container');
+        }
         
         let container = document.createElement('div');
         container.innerHTML = `<section id="results-section" class="row" style="margin-top: 3rem; background-color: #212121; height: 0; visibility: hidden;">  <div class="row justify-content-around" style="margin-top: 2%; margin-left: 0.1%; max-height: 100px; margin-bottom: -8vh;">  <div class="row d-flex justify-content-between text-white border-bottom" style="margin-bottom: 0.25rem;">  <span class="col" style="margin-top: 1.4rem; font-size: 1.8rem; margin-left: 1vw; min-width: 334px;">  Resultados Entrenamiento  </span>   <div class="col d-flex justify-content-end btn-group" style="min-width: 340px; -webkit-box-shadow: none; box-shadow: none; max-height: 4rem; margin-top: 1%;">  <button id="unlabel-drop" type="button" class="col-1 btn btn-info btn-outline-light dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: #880e4f !important;">  <span id="unlabel-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>  </button>  <div class="dropdown-menu" id="unlabel-samples" style="overflow-y: scroll; max-height: 25vh;">  <button class="dropdown-item border-top border-info disabled">  No se han cargado archivos.  </button>  </div>  <button class="btn btn-info" onclick="document.getElementById('unlabel-input').click();" style="min-width: 270px; font-size: 1rem; max-width: 10vw; background-color: #880e4f !important;">  <i class="fas fa-folder-open" style="margin-right: 0.5rem;" ></i>  unlabeled  </button> <input id="unlabel-input" onChange="samplesSelect('unlabel')" type="file" style="display: none" webkitdirectory directory multiple/>  </div>  </div>  </div>  </div> </section>`;
@@ -207,6 +210,32 @@
 </script>
 
 <script>
+    function autoTune() {
+        let auto_button = document.getElementById('auto-button');
+        auto_button.classList.add('disabled');
+
+        // Create a request variable and assign a new XMLHttpRequest object to it.
+        const request = new XMLHttpRequest();
+        // Open a new connection, using the POST request on the URL endpoint.
+        request.open('GET', './model_autotune', true);
+
+        request.onload = function () {  // Process response somehow.
+            let results_section = document.getElementById('results-section');
+            let model_metrics   = document.getElementById('model-metrics'  );
+
+            let results_div = document.createElement('div');
+            results_div.classList.add('row');
+            results_div.id = 'model-metrics';
+            results_div.innerHTML = this.response;
+
+            results_section.replaceChild(results_div, model_metrics);
+            auto_button.classList.remove('disabled');
+        }
+
+        // Send request
+        request.send();
+    }
+
     function checkSampleCount() {
         // Check if enough samples for training.
         if (document.getElementById('nodespo-samples').childElementCount > 19 ||
@@ -241,6 +270,7 @@
 
             let results_div = document.createElement('div');
             results_div.classList.add('row');
+            results_div.id = 'model-metrics';
             results_div.innerHTML = this.response;
 
             results_section.style.height = '130vh';
@@ -257,6 +287,7 @@
 
     function onModelUpload() {
         initResultPanel('Uploaded model');
+        cleanResults();
         const model_file = document.getElementById('trained-input').files[0];
         let formData = new FormData();
         formData.append('model_file', model_file);     
@@ -269,6 +300,7 @@
 
             let results_div = document.createElement('div');
             results_div.classList.add('row');
+            results_div.id = 'model-metrics';
             results_div.innerHTML = this.response;
 
             results_section.style.height = '130vh';

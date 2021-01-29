@@ -177,7 +177,7 @@ class ModeloDesp:
             img = io.BytesIO()
             plt.savefig(img)
 
-            img2 = self.non_normalized_confm( X_test, y_test)
+            img2 = self.non_normalized_confm(X_test, y_test)
             precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
             accuracy = accuracy_score(y_test, y_pred)
             precision = round(precision,2) * 100
@@ -272,8 +272,18 @@ class ModeloDesp:
                                    n_jobs=-1)
         grid_search.fit(X_train, y_train)
         self.selectedModel = grid_search.best_estimator_ # Obtenemos nuestro modelo seleccionado con los parametros internos que mejor se ajustan (modelo seleccionado optimizado)
+        cv_results = cross_val_score(self.selectedModel, X_train, y_train, cv=10, scoring="accuracy")
         self.selectedModel.fit(X_train, y_train)
         y_pred = self.selectedModel.predict(X_test)
+
+        # Plot de resultado para la validacion cruzada de un modelo
+        fig = plt.figure()
+        fig.suptitle('Algorithm tuned cross validation results')
+        ax = fig.add_subplot(111)
+        plt.boxplot(cv_results)
+        ax.set_xlabel(type(self.selectedModel).__name__)
+        img = io.BytesIO()
+        plt.savefig(img)
 
         img2 = self.non_normalized_confm(X_test, y_test)
         precision, recall, fscore, _ = precision_recall_fscore_support(y_test, y_pred,  average='weighted')
@@ -282,7 +292,8 @@ class ModeloDesp:
         recall = round(recall,2) * 100
         fscore = round(fscore,2) * 100
         accuracy = round(accuracy,2) * 100
-        return img2, [accuracy, precision, recall, fscore]
+
+        return type(self.selectedModel).__name__, img2, [accuracy, precision, recall, fscore], img
 
     '''
     Metodo que nos permite predecir la categoria a la que pertenecen noticias sin etiquetar
@@ -311,10 +322,10 @@ class ModeloDesp:
      - El modelo seleccionado
      - La fecha y hora en que se hizo el entrenamiento
     '''
-    def save_model(self, file):
+    def save_model(self, file, modelNameAutoSelected, confusion_matrix, metrics, plt_img):
         # save the model to disk
         # filename = 'finalized_model.sav'
-        bow_model_save = (self.vectorizer, self.selectedModel, self.dateTime)
+        bow_model_save = (self.vectorizer, self.selectedModel, self.dateTime, modelNameAutoSelected, confusion_matrix, metrics, plt_img)
         dump(bow_model_save, open(file, 'wb'))
 
     '''
@@ -326,5 +337,5 @@ class ModeloDesp:
     def load_model(self, serialized_file):
         # load the model from disk
         bow_model_save = pickle.loads(serialized_file)
-        self.count_vectorizer, self.selectedModel, self.dateTime = bow_model_save
-        return type(self.selectedModel).__name__
+        self.count_vectorizer, self.selectedModel, self.dateTime, modelNameAutoSelected, confusion_matrix, metrics, plt_img = bow_model_save
+        return modelNameAutoSelected, confusion_matrix, metrics, plt_img
