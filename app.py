@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, Response
 from base64 import b64encode
 from conexions import *
 import json
@@ -74,9 +74,10 @@ def download_trained_model():
 
 @app.route('/download_results')
 def download_results():
-    with open('results.json', 'w') as outfile:
-        json.dump(test_model(), outfile)
-    return send_file('results.json', as_attachment=True)
+    pd_results_csv = pd.DataFrame.from_dict(test_model())
+    return Response(pd_results_csv.to_csv(index=False),
+       mimetype="text/csv",
+       headers={"Content-disposition": "attachment; filename=results_unlabeled.csv"})
 
 @app.route('/')
 def index():

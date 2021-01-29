@@ -4,6 +4,7 @@
             <thead class="table-light">
                 <tr class="table-light">
                     <th scope="col">Index</th>
+                    <th scope="col">Fichero</th>
                     <th scope="col">Contenido_Noticia</th>
                     <th scope="col">Predicción</th>
                     <th scope="col">Proba_Despo</th>
@@ -13,10 +14,11 @@
             <tbody>
                 {% for content in results_json['noticia'] %}
                 <th scope="row">{{ loop.index }}</th>
+                <td>{{ results_json['Fichero'][loop.index - 1] }}</td>
                 <td>{{ content }}</td>
-                <td>{{ results_json['Prediccion'][loop.index] }}</td>
-                <td>{{ results_json['ProbaDespoblacion'][loop.index] }}</td>
-                <td>{{ results_json['ProbaNoDespoblacion'][loop.index] }}</td>
+                <td>{{ results_json['Prediccion'][loop.index - 1] }}</td>
+                <td>{{ results_json['ProbaDespoblacion'][loop.index - 1] }}</td>
+                <td>{{ results_json['ProbaNoDespoblacion'][loop.index - 1] }}</td>
             </tr>
             {% endfor %}
             </tbody>
