@@ -256,6 +256,7 @@
         // Check if sample count is correct.
         if (!checkSampleCount())
             return;
+        cleanResults();
 
         let form_values = Array.from(document.getElementById('train-form').querySelectorAll('select, input')).reduce((acc, input) => ({ ...acc, [input.id]: input.value}), {});
         initResultPanel(form_values['model-select']);
@@ -286,8 +287,8 @@
     }
 
     function onModelUpload() {
-        initResultPanel('Uploaded model');
         cleanResults();
+        initResultPanel('Uploaded model');
         const model_file = document.getElementById('trained-input').files[0];
         let formData = new FormData();
         formData.append('model_file', model_file);     
